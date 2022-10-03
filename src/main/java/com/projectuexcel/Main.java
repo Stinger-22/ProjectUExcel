@@ -1,5 +1,6 @@
 package com.projectuexcel;
 
+import com.projectuexcel.util.ConsoleInput;
 import com.projectuexcel.xls.XLSFilePlan;
 import com.projectuexcel.xls.exception.TeacherNotFoundException;
 
@@ -9,7 +10,16 @@ import java.util.Scanner;
 
 public class Main {
     public static void main( String[] args ) throws IOException {
-        Scanner scanner = new Scanner(System.in);
+        XLSFilePlan plan = openPlan();
+        if (plan == null) {
+            return;
+        }
+
+        exportTeacherPlan(plan);
+    }
+
+    public static XLSFilePlan openPlan() throws IOException {
+        Scanner scanner = ConsoleInput.getScanner();
 
         String sourcePath;
         System.out.print("Шлях до плану: ");
@@ -18,11 +28,15 @@ public class Main {
         XLSFilePlan plan;
         try {
             plan = new XLSFilePlan(sourcePath);
+        } catch (FileNotFoundException exception) {
+            exception.printStackTrace();
+            return null;
         }
-        catch (FileNotFoundException exception) {
-            System.out.println(exception);
-            return;
-        }
+        return plan;
+    }
+
+    public static void exportTeacherPlan(XLSFilePlan origin) {
+        Scanner scanner = ConsoleInput.getScanner();
 
         String initials, exportPath;
         System.out.print("Ініціали викладача: ");
@@ -31,10 +45,10 @@ public class Main {
         System.out.print("Шлях до нового файлу: ");
         exportPath = scanner.next();
         try {
-            plan.exportTeacherPlan(initials, exportPath);
+            origin.exportTeacherPlan(initials, exportPath);
         }
         catch (TeacherNotFoundException exception) {
-            System.out.println(exception);
+            exception.printStackTrace();
         }
     }
 }
