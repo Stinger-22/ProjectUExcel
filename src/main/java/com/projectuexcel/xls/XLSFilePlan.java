@@ -40,7 +40,7 @@ public class XLSFilePlan {
 
     /**
      * Constructor for XLSFilePlan which opens file and initializes required fields.
-     * @param path path for file to open
+     * @param path full path for file to open
      * @throws IOException is thrown when file is not found
      */
     public XLSFilePlan(String path) throws IOException {
