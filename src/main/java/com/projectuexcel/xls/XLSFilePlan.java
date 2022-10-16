@@ -1,6 +1,6 @@
 package com.projectuexcel.xls;
 
-import com.projectuexcel.xls.exception.TeacherNotFoundException;
+import com.projectuexcel.xls.exception.CodeNotFoundException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 
@@ -12,10 +12,31 @@ import java.util.Map;
  * Open existing teacher plan file. It can search for teacher in table and export chosen teacher plan into another file.
  */
 public class XLSFilePlan {
-    private File file;
-    private FileInputStream fileInputStream;
-    private Workbook workbook;
-    private Sheet sheet;
+    private final File file;
+    private final FileInputStream fileInputStream;
+    private final Workbook workbook;
+    private final Sheet sheet;
+    private final Row header;
+
+    public File getFile() {
+        return file;
+    }
+
+    public FileInputStream getFileInputStream() {
+        return fileInputStream;
+    }
+
+    public Workbook getWorkbook() {
+        return workbook;
+    }
+
+    public Sheet getSheet() {
+        return sheet;
+    }
+
+    public Row getHeader() {
+        return header;
+    }
 
     /**
      * Constructor for XLSFilePlan which opens file and initializes required fields.
@@ -27,15 +48,16 @@ public class XLSFilePlan {
         this.fileInputStream = new FileInputStream(this.file);
         this.workbook = new HSSFWorkbook(fileInputStream);
         this.sheet = workbook.getSheetAt(0);
+        this.header = this.sheet.getRow(0);
     }
 
     /**
      * Find first occurrence of teacher in table
      * @param initials initials of teacher
      * @return row index of first teacher occurance in file
-     * @throws TeacherNotFoundException is thrown when teacher is not found
+     * @throws CodeNotFoundException is thrown when teacher is not found
      */
-    public int searchTeacher(String initials) throws TeacherNotFoundException {    // exception or -1 ?
+    public int searchTeacher(String initials) throws CodeNotFoundException {    // exception or -1 ?
         int firstRow, lastRow;
         firstRow = 1;
         lastRow = sheet.getLastRowNum();
@@ -64,7 +86,7 @@ public class XLSFilePlan {
                 return findFirst(mid, initials);
             }
         }
-        throw new TeacherNotFoundException(initials);
+        throw new CodeNotFoundException(initials);
     }
 
     /**
@@ -86,56 +108,17 @@ public class XLSFilePlan {
     /**
      * Find last occurrence of teacher with given index of n occurrence
      * @param index index of row with teacher
-     * @param initials initials of teacher
+     * @param code code of teacher
      * @return last row with teacher
      */
-    private int findLast(int index, String initials) {
+    public int findLast(int index, String code) {
         Cell cell;
         do {
             index++;
             cell = sheet.getRow(index).getCell(0);
-        } while (cell == null || cell.getStringCellValue().equals(initials));
+        } while (cell == null || cell.getStringCellValue().equals(code));
 
         return index;
-    }
-
-    /**
-     * Export chosen teacher plan into his own file
-     * @param initials initials of teacher looked for
-     * @param path path to new file
-     * @throws TeacherNotFoundException is thrown when teacher is not found in table
-     */
-    public void exportTeacherPlan(String initials, String path) throws TeacherNotFoundException {
-        int firstRow = searchTeacher(initials);
-        int lastRow = findLast(firstRow, initials);
-
-        Workbook exportWorkbook = new HSSFWorkbook();
-        FormulaEvaluator evaluator = exportWorkbook.getCreationHelper().createFormulaEvaluator();
-
-        exportWorkbook.createSheet();
-        Row header = this.sheet.getRow(0);
-        Sheet exportSheet = exportWorkbook.getSheetAt(0);
-        for (int i = 0; i < header.getLastCellNum(); i++) {
-            exportSheet.setColumnWidth(i, this.sheet.getColumnWidth(i));
-        }
-        Map<CellStyle, CellStyle> cellStyles = copyCellStyles(exportWorkbook);
-
-        Row newRow = exportSheet.createRow(0);
-        copyRow(header, newRow, cellStyles, evaluator);
-
-        int rowIndex = 1;
-        for (int i = firstRow; i <= lastRow; i++) {
-            newRow = exportSheet.createRow(rowIndex);
-            copyRow(this.sheet.getRow(i), newRow, cellStyles, evaluator);
-            rowIndex++;
-        }
-
-        try (OutputStream fileOut = new FileOutputStream(path)) {
-            exportWorkbook.write(fileOut);
-        } catch (IOException e) {
-            System.out.println("Can't create file");
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -145,7 +128,7 @@ public class XLSFilePlan {
      * @param cellStyles styles of cells from source file
      * @param evaluator evaluator instance of destination file to evaluate formulas if any
      */
-    private void copyRow(Row source, Row destination, Map<CellStyle, CellStyle> cellStyles, FormulaEvaluator evaluator) {
+    public void copyRow(Row source, Row destination, Map<CellStyle, CellStyle> cellStyles, FormulaEvaluator evaluator) {
         Cell cellSource, cellDestination;
         for (int i = 0; i < source.getLastCellNum(); i++) {
             cellSource = source.getCell(i);
@@ -188,7 +171,7 @@ public class XLSFilePlan {
      * @param newWorkbook new file
      * @return map which key is style from source file and value is corresponding style from new file
      */
-    private Map<CellStyle, CellStyle> copyCellStyles(Workbook newWorkbook) {
+    public Map<CellStyle, CellStyle> copyCellStyles(Workbook newWorkbook) {
         Map<CellStyle, CellStyle> cellStyles = new HashMap<>();
         int n = workbook.getNumCellStyles();
         CellStyle sourceStyle, style;

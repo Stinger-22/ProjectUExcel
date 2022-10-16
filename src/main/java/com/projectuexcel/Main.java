@@ -2,7 +2,9 @@ package com.projectuexcel;
 
 import com.projectuexcel.util.ConsoleInput;
 import com.projectuexcel.xls.XLSFilePlan;
-import com.projectuexcel.xls.exception.TeacherNotFoundException;
+import com.projectuexcel.xls.exception.CodeNotFoundException;
+import com.projectuexcel.xls.export.Exporter;
+import com.projectuexcel.xls.export.TeacherExporterYear;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,7 +17,8 @@ public class Main {
             return;
         }
 
-        exportTeacherPlan(plan);
+        Exporter exporter = new TeacherExporterYear(plan);
+        exportTeacherPlan(exporter);
     }
 
     public static XLSFilePlan openPlan() throws IOException {
@@ -35,19 +38,19 @@ public class Main {
         return plan;
     }
 
-    public static void exportTeacherPlan(XLSFilePlan origin) {
+    public static void exportTeacherPlan(Exporter exporter) {
         Scanner scanner = ConsoleInput.getScanner();
 
-        String initials, exportPath;
-        System.out.print("Ініціали викладача: ");
-        initials = scanner.next();
+        String teacherCode, exportPath;
+        System.out.print("Код викладача: ");
+        teacherCode = scanner.next();
 
         System.out.print("Шлях до нового файлу: ");
         exportPath = scanner.next();
         try {
-            origin.exportTeacherPlan(initials, exportPath);
+            exporter.export(teacherCode, exportPath);
         }
-        catch (TeacherNotFoundException exception) {
+        catch (CodeNotFoundException exception) {
             exception.printStackTrace();
         }
     }
