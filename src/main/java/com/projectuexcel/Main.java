@@ -4,6 +4,8 @@ import com.projectuexcel.util.ConsoleInput;
 import com.projectuexcel.xls.XLSFilePlan;
 import com.projectuexcel.xls.exception.CodeNotFoundException;
 import com.projectuexcel.xls.export.Exporter;
+import com.projectuexcel.xls.export.TeacherExporterFirstSemester;
+import com.projectuexcel.xls.export.TeacherExporterSecondSemester;
 import com.projectuexcel.xls.export.TeacherExporterYear;
 
 import java.io.FileNotFoundException;
@@ -17,7 +19,7 @@ public class Main {
             return;
         }
 
-        Exporter exporter = new TeacherExporterYear(plan);
+        Exporter exporter = new TeacherExporterSecondSemester(plan);
         exportTeacherPlan(exporter);
     }
 

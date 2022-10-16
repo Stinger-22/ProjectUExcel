@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-public abstract class TeacherExporter implements Exporter{
+public abstract class TeacherExporter implements Exporter {
     XLSFilePlan plan;
 
     public TeacherExporter(XLSFilePlan plan) {
@@ -36,11 +36,11 @@ public abstract class TeacherExporter implements Exporter{
         Row newRow = exportSheet.createRow(0);
         plan.copyRow(plan.getHeader(), newRow, cellStyles, evaluator);
 
-        int rowIndex = 1;
+        int rowDestinationIndex = 1;
         for (int i = firstRow; i <= lastRow; i++) {
-            newRow = exportSheet.createRow(rowIndex);
+            newRow = exportSheet.createRow(rowDestinationIndex);
             plan.copyRow(plan.getSheet().getRow(i), newRow, cellStyles, evaluator);
-            rowIndex++;
+            rowDestinationIndex++;
         }
 
         write(exportWorkbook, path);
