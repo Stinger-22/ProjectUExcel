@@ -64,19 +64,12 @@ public class Main {
         teacherCode = init.get("teacher");
         exportPath = init.get("output");
 
-        switch (init.get("semester")) {
-            case "1":
-                exporter = new TeacherExporterFirstSemester(plan);
-                break;
-            case "2":
-                exporter = new TeacherExporterSecondSemester(plan);
-                break;
-            case "3":
-                exporter = new TeacherExporterYear(plan);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + init.get("semester"));
-        }
+        exporter = switch (init.get("semester")) {
+            case "1" -> new TeacherExporterFirstSemester(plan);
+            case "2" -> new TeacherExporterSecondSemester(plan);
+            case "3" -> new TeacherExporterYear(plan);
+            default -> throw new IllegalStateException("Unexpected value: " + init.get("semester"));
+        };
         try {
             exporter.export(teacherCode, exportPath);
         }
@@ -89,7 +82,6 @@ public class Main {
     public static Map<String, String> readIniFile() {
         Map<String, String> init = new HashMap<>();
         File file = new File("setup.ini");
-        String buffer;
         String[] filtered;
         try {
             Scanner scanner = new Scanner(file);
