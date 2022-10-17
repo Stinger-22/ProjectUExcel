@@ -64,12 +64,19 @@ public class Main {
         teacherCode = init.get("teacher");
         exportPath = init.get("output");
 
-        exporter = switch (init.get("semester")) {
-            case "1" -> new TeacherExporterFirstSemester(plan);
-            case "2" -> new TeacherExporterSecondSemester(plan);
-            case "3" -> new TeacherExporterYear(plan);
-            default -> throw new IllegalStateException("Unexpected value: " + init.get("semester"));
-        };
+        switch (init.get("semester")) {
+            case "1":
+                exporter = new TeacherExporterFirstSemester(plan);
+                break;
+            case "2":
+                exporter = new TeacherExporterSecondSemester(plan);
+                break;
+            case "3":
+                exporter = new TeacherExporterYear(plan);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + init.get("semester"));
+        }
         try {
             exporter.export(teacherCode, exportPath);
         }
