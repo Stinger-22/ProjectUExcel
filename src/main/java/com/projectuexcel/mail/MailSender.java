@@ -56,16 +56,14 @@ public class MailSender {
         this.attachment = attachment;
     }
 
-    public void sendMessageAttachment(String receiver) throws MessagingException, IOException {
+    public void sendMessageAttachment(String receiver, String subject, String msg) throws MessagingException, IOException {
         if (attachment == null) {
             throw new IllegalStateException("No attachment file is set. Use method setAttachment");
         }
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(senderMail));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
-        message.setSubject("Plan");
-
-        String msg = "Here is your plan";
+        message.setSubject(subject);
 
         MimeBodyPart attachmentBodyPart = new MimeBodyPart();
         attachmentBodyPart.attachFile(attachment);

@@ -1,7 +1,7 @@
 package com.projectuexcel.xls.exception;
 
 public class CodeNotFoundException extends Exception {
-    private static final String DESCRIPTION = "Teacher was not found with given initials";
+    private static final String DESCRIPTION = "Teacher was not found with given code";
     private String code;
 
     public CodeNotFoundException(String code) {
