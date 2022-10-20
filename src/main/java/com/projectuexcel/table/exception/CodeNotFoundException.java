@@ -1,4 +1,4 @@
-package com.projectuexcel.xls.exception;
+package com.projectuexcel.table.exception;
 
 public class CodeNotFoundException extends Exception {
     private static final String DESCRIPTION = "Teacher was not found with given code";

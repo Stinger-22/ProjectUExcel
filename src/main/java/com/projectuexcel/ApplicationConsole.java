@@ -1,29 +1,33 @@
 package com.projectuexcel;
 
 import com.projectuexcel.mail.MailSender;
+import com.projectuexcel.table.Teacher;
 import com.projectuexcel.util.ConsoleInput;
-import com.projectuexcel.xls.XLSFilePlan;
-import com.projectuexcel.xls.exception.CodeNotFoundException;
-import com.projectuexcel.xls.export.*;
+import com.projectuexcel.table.Plan;
+import com.projectuexcel.table.export.*;
+import org.apache.poi.hssf.OldExcelFormatException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class ApplicationConsole {
-    Scanner input = ConsoleInput.getScanner();
+    private Scanner input = ConsoleInput.getScanner();
 
-    private MailSender mailSender;
-    private XLSFilePlan plan;
+    private final MailSender mailSender;
+    private Plan plan;
+    private Map<String, String> mails;
 
     public ApplicationConsole() throws FileNotFoundException {
         this.mailSender = new MailSender();
+        this.mails = importEmails("test_codemail.txt");
     }
 
-    public void run() throws MessagingException, IOException {
+    public void run() throws MessagingException, IOException, InvalidFormatException {
+        Exporter exporter;
         int choose;
         while (true) {
             printMenu();
@@ -41,20 +45,36 @@ public class ApplicationConsole {
                     openPlan();
                     break;
                 case 2:
+                    printExportOptions();
+                    exporter = chooseExportOption();
+                    if (exporter != null) {
+                        sendAll(exporter);
+                    }
                     break;
                 case 3:
-                    sendOne();
+                    printExportOptions();
+                    exporter = chooseExportOption();
+                    if (exporter != null) {
+                        sendOne(exporter);
+                    }
                     break;
                 case 4:
+                    String path;
+                    System.out.print("Шлях до папки куди експортувати: ");
+                    path = input.next();
+                    exportAll(path);
                     break;
                 case 5:
                     printExportOptions();
-                    Exporter exporter = chooseExportOption();
+                    exporter = chooseExportOption();
                     if (exporter != null) {
                         exportOne(exporter);
                     }
                     break;
                 case 6:
+                    sendOriginToAll();
+                    break;
+                case 7:
                     return;
                 default:
                     input.nextLine();
@@ -63,47 +83,77 @@ public class ApplicationConsole {
         }
     }
 
-    private void openPlan() {
+    private void openPlan() throws IOException, InvalidFormatException {
         String sourcePath;
         System.out.print("Шлях до плану: ");
         sourcePath = input.nextLine();
         try {
-            this.plan = new XLSFilePlan(sourcePath);
+            this.plan = new Plan(sourcePath);
             System.out.println("План відкрито");
         }
-        catch (IOException exception) {
-            this.plan = null;
-            System.out.println("Файл не знайдено");
+        catch (OldExcelFormatException exception) {
+            System.out.println("Convert file to .xlsx");
+            exception.printStackTrace();
         }
     }
 
-    private void sendAll() {
-
+    private void sendAll(Exporter exporter) throws MessagingException, IOException {
+        System.out.println("SEND ALL START");
+        System.out.println("MAILS:" + mails);
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+        String exportPath;
+        File file;
+        for (Teacher teacher : teacherTablePlacement) {
+            exportPath = "Plan.xlsx";
+            System.out.println("Export Path:" + exportPath);
+            file = new File(exportPath);
+            System.out.println("File:" + file);
+            exporter.export(teacher, exportPath);
+            mailSender.setAttachment(file);
+            System.out.println("teacher search mail: " + teacher.getCode());
+            System.out.println("receiver: " + mails.get(teacher.getCode()));
+            String mail = getTeacherMail(teacher);
+            if (mail == null) {
+                continue;
+            }
+            mailSender.sendMessageAttachment(mail, "Your plan", "Here is your plan");
+            file.delete();
+            System.out.println("SEND!!");
+        }
+        System.out.println("Плани відправлено");
     }
 
-    private void sendOne() throws MessagingException, IOException {
-        printExportOptions();
-        Exporter exporter = chooseExportOption();
-        if (exporter == null) {
-            return;
-        }
+    private void sendOne(Exporter exporter) throws MessagingException, IOException {
         String teacherCode;
         System.out.print("Код викладача: ");
         teacherCode = input.next();
-        String exportPath = "temp.xls";
-        try {
-            exporter.export(teacherCode, exportPath);
-        }
-        catch (CodeNotFoundException exception) {
+
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+
+        int i = searchTeacherByCode(teacherTablePlacement, teacherCode);
+        if (i == -1) {
             System.out.println("Викладача з такими кодом не існує");
             return;
         }
-        mailSender.setAttachment(new File(exportPath));
-        mailSender.sendMessageAttachment("maxym.sobol@gmail.com", "Plan", "Test sending plans");
+        String exportPath = teacherTablePlacement.get(i).getCode() + ".xlsx";
+        File file = new File(exportPath);
+        exporter.export(teacherTablePlacement.get(i), exportPath);
+        String mail = getTeacherMail(teacherTablePlacement.get(i));
+        if (mail == null) {
+            return;
+        }
+        mailSender.setAttachment(file);
+        mailSender.sendMessageAttachment(mail, "Plan first semester", "Test send plan first semester");
+        file.delete();
     }
 
-    private void exportAll() {
-
+    private void exportAll(String path) {
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+        Exporter exporter = new TeacherExporterYear(plan);
+        for (Teacher teacher : teacherTablePlacement) {
+            //TODO: make export .xls or .xlsx depending on origin file
+            exporter.export(teacher, path + teacher.getCode() + ".xlsx");
+        }
     }
 
     private void exportOne(Exporter exporter) {
@@ -113,12 +163,14 @@ public class ApplicationConsole {
 
         System.out.print("Шлях до нового файлу: ");
         exportPath = input.next();
-        try {
-            exporter.export(teacherCode, exportPath);
-        }
-        catch (CodeNotFoundException exception) {
+
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+        int i = searchTeacherByCode(teacherTablePlacement, teacherCode);
+        if (i == -1) {
             System.out.println("Викладача з такими кодом не існує");
+            return;
         }
+        exporter.export(teacherTablePlacement.get(i), exportPath);
     }
 
     private void printMenu() {
@@ -128,7 +180,8 @@ public class ApplicationConsole {
         System.out.println("3. Відправити викладачу (його план)");
         System.out.println("4. Експортувати план всіх викладачів");
         System.out.println("5. Експортувати план викладача");
-        System.out.println("6. Вихід");
+        System.out.println("6. Відправити весь план кожному викладачу");
+        System.out.println("7. Вихід");
         System.out.print("> ");
     }
 
@@ -152,6 +205,59 @@ public class ApplicationConsole {
             default:
                 System.out.println("Помилка");
                 return null;
+        }
+    }
+
+    private Map<String, String> importEmails(String path) throws FileNotFoundException {
+        Map<String, String> emails = new HashMap<>();
+        File file = new File(path);
+        Scanner scanner = new Scanner(file);
+        String[] line;
+        while (scanner.hasNext()) {
+            line = scanner.nextLine().split("=");
+            emails.put(line[0].trim(), line[1].trim());
+        }
+        return emails;
+    }
+
+    private int searchTeacherByCode(List<Teacher> teachers, String code) {
+        for (int i = 0; i < teachers.size(); i++) {
+            if (code.equals(teachers.get(i).getCode())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private String getTeacherMail(Teacher teacher) {
+        String mail = mails.get(teacher.getCode());
+        if (mail == null) {
+            System.out.println("Не вказано пошту викладача з кодом " + teacher.getCode());
+            int choose;
+            System.out.println("Подальша дія: ");
+            System.out.println("1. Пропустити викладача");
+            System.out.println("2. Ввести пошту вручну");
+            System.out.print("> ");
+            choose = ConsoleInput.getScanner().nextInt();
+            switch (choose) {
+                case 1:
+                    return null;
+                case 2:
+                    System.out.print("Пошта викладача з кодом " + teacher.getCode() + ": ");
+                    mail = ConsoleInput.getScanner().next();
+                    return mail;
+            }
+        }
+        return mail;
+    }
+
+    private void sendOriginToAll() throws MessagingException, IOException {
+        List<Teacher> teachers = plan.getTeacherTablePlacement();
+        mailSender.setAttachment(plan.getFile());
+        String mail;
+        for (Teacher teacher : teachers) {
+            mail = getTeacherMail(teacher);
+            mailSender.sendMessageAttachment(mail, "All plan", "Test send all");
         }
     }
 }
