@@ -1,6 +1,5 @@
 package com.projectuexcel;
 
-import com.projectuexcel.table.exception.CodeNotFoundException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;

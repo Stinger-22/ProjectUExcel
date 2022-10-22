@@ -104,6 +104,8 @@ public class ApplicationConsole {
         String exportPath;
         File file;
         for (Teacher teacher : teacherTablePlacement) {
+            long startTime, stopTime;
+            startTime = System.nanoTime();
             exportPath = "Plan.xlsx";
             System.out.println("Export Path:" + exportPath);
             file = new File(exportPath);
@@ -116,6 +118,8 @@ public class ApplicationConsole {
             if (mail == null) {
                 continue;
             }
+            stopTime = System.nanoTime();
+            System.out.println("Required time for table setup: " + (stopTime - startTime));
             mailSender.sendMessageAttachment(mail, "Your plan", "Here is your plan");
             file.delete();
             System.out.println("SEND!!");

@@ -57,6 +57,9 @@ public class MailSender {
     }
 
     public void sendMessageAttachment(String receiver, String subject, String msg) throws MessagingException, IOException {
+        //TODO: try use multithreading to increase speed?
+        long startTime, stopTime;
+        startTime = System.nanoTime();
         if (attachment == null) {
             throw new IllegalStateException("No attachment file is set. Use method setAttachment");
         }
@@ -74,9 +77,13 @@ public class MailSender {
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
         multipart.addBodyPart(attachmentBodyPart);
+        stopTime = System.nanoTime();
+        System.out.println("Required time for message creation: " + (stopTime - startTime));
 
         message.setContent(multipart);
-
+        startTime = System.nanoTime();
         Transport.send(message);
+        stopTime = System.nanoTime();
+        System.out.println("Required time to send: " + (stopTime - startTime));
     }
 }
