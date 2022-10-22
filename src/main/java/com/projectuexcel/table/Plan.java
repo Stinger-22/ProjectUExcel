@@ -7,10 +7,7 @@ import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Open existing teacher plan file. It can search for teacher in table and export chosen teacher plan into another file.
@@ -74,6 +71,9 @@ public class Plan {
      * @param cellStyles styles of cells from source file
      */
     public void copyRow(Row source, Row destination, Map<CellStyle, CellStyle> cellStyles) {
+        if (source == null) {
+            return;
+        }
         Cell cellSource, cellDestination;
         for (int i = 0; i < source.getLastCellNum(); i++) {
             cellSource = source.getCell(i);
@@ -155,5 +155,18 @@ public class Plan {
             teacherPlacement.add(teacher);
         } while (i < rows);
         return teacherPlacement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plan plan = (Plan) o;
+        return Objects.equals(file, plan.file);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(file);
     }
 }

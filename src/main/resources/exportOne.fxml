@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projectuexcel.ui.ExportOneController">
+  <children>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="300.0" prefWidth="356.0" VBox.vgrow="NEVER">
+      <children>
+          <TextField fx:id="pathFolder" layoutX="41.0" layoutY="43.0" prefHeight="25.0" prefWidth="211.0" promptText="Path to folder" />
+          <Button fx:id="chooseFolder" layoutX="271.0" layoutY="43.0" mnemonicParsing="false" onAction="#selectFolder" text="Choose folder" />
+          <Button fx:id="buttonOk" layoutX="45.0" layoutY="290.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Ok" onAction="#ok"/>
+          <Button fx:id="buttonCancel" layoutX="222.0" layoutY="290.0" mnemonicParsing="false" onAction="#cancel" prefHeight="60.0" prefWidth="140.0" text="Cancel" />
+          <TextField fx:id="code" layoutX="41.0" layoutY="108.0" promptText="Teacher's code" />
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>

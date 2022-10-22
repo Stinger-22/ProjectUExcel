@@ -13,7 +13,7 @@ public class ApplicationWindow extends Application {
         setupMainStage(primaryStage);
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/ui.fxml"));
+        loader.setLocation(getClass().getResource("/main.fxml"));
 
         VBox vbox = loader.load();
         Scene scene = new Scene(vbox);

@@ -1,5 +1,6 @@
 package com.projectuexcel.table;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Teacher {
@@ -91,6 +92,15 @@ public class Teacher {
         else {
             throw new IllegalStateException();
         }
+    }
+
+    public static int searchTeacherByCode(List<Teacher> teachers, String code) {
+        for (int i = 0; i < teachers.size(); i++) {
+            if (code.equals(teachers.get(i).getCode())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
