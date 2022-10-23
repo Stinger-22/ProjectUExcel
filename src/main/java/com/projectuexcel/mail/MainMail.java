@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class MainMail {
-    public static void main(String[] args) throws IOException, MessagingException {
-        MailSender mailSender = new MailSender();
+    public static void main(String[] args) throws IOException {
+        MailSender mailSender = MailSender.getMailSender();
     }
 }

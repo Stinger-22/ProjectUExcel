@@ -12,13 +12,15 @@ import java.util.Properties;
 import java.util.Scanner;
 
 public class MailSender {
+    private static MailSender mailSender;
+
     private String senderMail = "max.botprog@gmail.com";
     private Properties properties;
     private Session session;
 
     private File attachment;
 
-    public MailSender() throws FileNotFoundException {
+    private MailSender() throws FileNotFoundException {
         properties = getProperties();
         String password = getPassword();
 
@@ -30,6 +32,13 @@ public class MailSender {
         };
 
         session = Session.getInstance(properties, authenticator);
+    }
+
+    public static MailSender getMailSender() throws FileNotFoundException {
+        if (mailSender == null) {
+            mailSender = new MailSender();
+        }
+        return mailSender;
     }
 
     private String getPassword() throws FileNotFoundException {
@@ -56,34 +65,45 @@ public class MailSender {
         this.attachment = attachment;
     }
 
-    public void sendMessageAttachment(String receiver, String subject, String msg) throws MessagingException, IOException {
-        //TODO: try use multithreading to increase speed?
-        long startTime, stopTime;
-        startTime = System.nanoTime();
+    public void sendMessageAttachment(String receiver, String subject, String text) throws MessagingException, IOException {
         if (attachment == null) {
             throw new IllegalStateException("No attachment file is set. Use method setAttachment");
         }
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(senderMail));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
-        message.setSubject(subject);
 
+        //TODO: try use multithreading to increase speed?
+        sendMessage(message, subject, text);
+    }
+
+    public void sendMessageAttachment(String[] receivers, String subject, String text) throws MessagingException, IOException {
+        if (attachment == null) {
+            throw new IllegalStateException("No attachment file is set. Use method setAttachment");
+        }
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(senderMail));
+        for (String receiver : receivers) {
+            message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
+        }
+
+        //TODO: try use multithreading to increase speed?
+        sendMessage(message, subject, text);
+    }
+
+    private void sendMessage(Message message, String subject, String text) throws MessagingException, IOException {
+        message.setSubject(subject);
         MimeBodyPart attachmentBodyPart = new MimeBodyPart();
         attachmentBodyPart.attachFile(attachment);
 
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(msg, "text/html; charset=utf-8");
+        mimeBodyPart.setContent(text, "text/html; charset=utf-8");
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
         multipart.addBodyPart(attachmentBodyPart);
-        stopTime = System.nanoTime();
-        System.out.println("Required time for message creation: " + (stopTime - startTime));
 
         message.setContent(multipart);
-        startTime = System.nanoTime();
         Transport.send(message);
-        stopTime = System.nanoTime();
-        System.out.println("Required time to send: " + (stopTime - startTime));
     }
 }

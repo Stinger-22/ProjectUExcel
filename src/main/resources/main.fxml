@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.HTMLEditor?>
 
 <VBox prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projectuexcel.ui.MainController">
 
@@ -21,20 +22,22 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <TextField fx:id="pathPlan" layoutX="74.0" layoutY="43.0" prefHeight="25.0" prefWidth="376.0" promptText="Path to plan" />
-                              <Button fx:id="choosePlan" layoutX="592.0" layoutY="43.0" mnemonicParsing="false" onAction="#selectTable" text="Choose plan" />
-                              <Button layoutX="74.0" layoutY="97.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Send origin to all" />
-                              <Button layoutX="214.0" layoutY="97.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Send part to all" />
-                              <Button layoutX="214.0" layoutY="262.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Export all" onAction="#exportAll"/>
-                              <Button layoutX="354.0" layoutY="262.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Export one" onAction="#exportOne"/>
-                              <Button layoutX="354.0" layoutY="97.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Send part to one" />
-                              <RadioButton fx:id="selectYear" layoutX="74.0" layoutY="198.0" mnemonicParsing="false" selected="true" text="year">
+                              <TextField fx:id="pathPlan" layoutX="14.0" layoutY="18.0" prefHeight="25.0" prefWidth="619.0" promptText="Path to plan" />
+                              <Button fx:id="choosePlan" layoutX="648.0" layoutY="18.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="140.0" text="Choose plan" />
+                              <Button layoutX="646.0" layoutY="67.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="60.0" prefWidth="140.0" text="Send origin to all" />
+                              <Button layoutX="646.0" layoutY="127.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="60.0" prefWidth="140.0" text="Send part to all" />
+                              <Button layoutX="646.0" layoutY="497.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="60.0" prefWidth="140.0" text="Export all" />
+                              <Button layoutX="646.0" layoutY="437.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="60.0" prefWidth="140.0" text="Export one" />
+                              <Button layoutX="646.0" layoutY="187.0" mnemonicParsing="false" onAction="#sendOne" prefHeight="60.0" prefWidth="140.0" text="Send part to one" />
+                              <RadioButton fx:id="selectYear" layoutX="661.0" layoutY="264.0" mnemonicParsing="false" selected="true" text="year">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="partition" />
                                  </toggleGroup>
                               </RadioButton>
-                              <RadioButton fx:id="selectFirstSemester" layoutX="214.0" layoutY="198.0" mnemonicParsing="false" text="1" toggleGroup="$partition" />
-                              <RadioButton fx:id="selectSecondSemester" layoutX="354.0" layoutY="198.0" mnemonicParsing="false" text="2" toggleGroup="$partition" />
+                              <RadioButton fx:id="selectFirstSemester" layoutX="661.0" layoutY="294.0" mnemonicParsing="false" prefWidth="0.0" text="1" toggleGroup="$partition" />
+                              <RadioButton fx:id="selectSecondSemester" layoutX="661.0" layoutY="323.0" mnemonicParsing="false" text="2" toggleGroup="$partition" />
+                              <HTMLEditor fx:id="text" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="14.0" layoutY="105.0" prefHeight="452.0" prefWidth="619.0" />
+                              <TextField fx:id="subject" layoutX="14.0" layoutY="67.0" prefHeight="25.0" prefWidth="619.0" promptText="Subject" />
                            </children></AnchorPane>
                   </content>
                 </Tab>

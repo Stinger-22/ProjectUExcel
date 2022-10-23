@@ -22,7 +22,7 @@ public class ApplicationConsole {
     private Map<String, String> mails;
 
     public ApplicationConsole() throws FileNotFoundException {
-        this.mailSender = new MailSender();
+        this.mailSender = MailSender.getMailSender();
         this.mails = importEmails("test_codemail.txt");
     }
 
@@ -258,10 +258,10 @@ public class ApplicationConsole {
     private void sendOriginToAll() throws MessagingException, IOException {
         List<Teacher> teachers = plan.getTeacherTablePlacement();
         mailSender.setAttachment(plan.getFile());
-        String mail;
-        for (Teacher teacher : teachers) {
-            mail = getTeacherMail(teacher);
-            mailSender.sendMessageAttachment(mail, "All plan", "Test send all");
+        String[] mails = new String[teachers.size()];
+        for (int i = 0; i < teachers.size(); i++) {
+            mails[i] = getTeacherMail(teachers.get(i));
         }
+        mailSender.sendMessageAttachment(mails, "All plan", "Test send all");
     }
 }
