@@ -18,8 +18,15 @@ public class ApplicationWindow extends Application {
         VBox vbox = loader.load();
         Scene scene = new Scene(vbox);
 
+
+
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() {
+
     }
 
     public static void main(String[] args) {

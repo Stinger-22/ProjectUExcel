@@ -10,12 +10,15 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
@@ -33,6 +36,10 @@ import java.io.IOException;
 import java.util.*;
 
 public class MainController {
+    @FXML
+    private TextField addCode;
+    @FXML
+    private TextField addEmail;
     @FXML
     private TextField filter;
     @FXML
@@ -65,9 +72,10 @@ public class MainController {
     private Pane paneViewEmails;
 
     private MailSender mailSender;
-    private Map<String, String> mailsMap;
+    private Map<String, List<String>> mailsMap;
     private ObservableList<CodeMail> tableData;
     private Plan plan;
+    private File emails;
 
     @FXML
     public void initialize() throws FileNotFoundException {
@@ -76,6 +84,20 @@ public class MainController {
 
         this.codeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         this.emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+
+        this.codeMailTableView.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                CodeMail selected = codeMailTableView.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+                        tableData.remove(selected);
+                        setupFilter();
+                    }
+                }
+            }
+        });
+
         loadCodeMailTableView();
         setupFilter();
     }
@@ -138,14 +160,20 @@ public class MainController {
         }
     }
 
-    private Map<String, String> importEmails(String path) throws FileNotFoundException {
-        Map<String, String> emails = new HashMap<>();
+    private Map<String, List<String>> importEmails(String path) throws FileNotFoundException {
+        Map<String, List<String>> emails = new HashMap<>();
         File file = new File(path);
         Scanner scanner = new Scanner(file);
         String[] line;
         while (scanner.hasNext()) {
             line = scanner.nextLine().split("=");
-            emails.put(line[0].trim(), line[1].trim());
+            List<String> tempMails = new ArrayList<>();
+            String code = line[0].trim();
+            line = line[1].split(",");
+            for (String mail : line) {
+                tempMails.add(mail.trim());
+            }
+            emails.put(code, tempMails);
         }
         return emails;
     }
@@ -195,11 +223,12 @@ public class MainController {
             exporter.export(teacher, exportPath);
             mailSender.setAttachment(file);
             //TODO handle when no mail found
-            String mail = mailsMap.get(teacher.getCode());
-            if (mail == null) {
+            List<String> mailList = mailsMap.get(teacher.getCode());
+            if (mailList == null) {
                 continue;
             }
-            mailSender.sendMessageAttachment(mail, subject.getText(), text.getHtmlText());
+            String[] mailArray = new String[mailList.size()];
+            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
             file.delete();
         }
     }
@@ -208,12 +237,15 @@ public class MainController {
         openPlan();
         List<Teacher> teachers = plan.getTeacherTablePlacement();
         mailSender.setAttachment(plan.getFile());
-        String mail;
 
         for (Teacher teacher : teachers) {
             //TODO handle when no code
-            mail = mailsMap.get(teacher.getCode());
-            mailSender.sendMessageAttachment(mail, subject.getText(), text.getHtmlText());
+            List<String> mailList = mailsMap.get(teacher.getCode());
+            if (mailList == null) {
+                continue;
+            }
+            String[] mailArray = new String[mailList.size()];
+            mailSender.sendMessageAttachment(mailArray, subject.getText(), text.getHtmlText());
         }
     }
 
@@ -221,7 +253,10 @@ public class MainController {
         tableData = FXCollections.observableArrayList();
         List<String> keys = new ArrayList<>(mailsMap.keySet());
         for (String key : keys) {
-            tableData.add(new CodeMail(key, mailsMap.get(key)));
+            List<String> emails = mailsMap.get(key);
+            for (String email : emails) {
+                tableData.add(new CodeMail(key, email));
+            }
         }
     }
 
@@ -232,7 +267,8 @@ public class MainController {
         );
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
-            mailsMap = importEmails(file.getAbsolutePath());
+            emails = file;
+            mailsMap = importEmails(emails.getAbsolutePath());
             loadCodeMailTableView();
             setupFilter();
         }
@@ -256,5 +292,25 @@ public class MainController {
         SortedList<CodeMail> sortedList = new SortedList<>(filteredList);
         sortedList.comparatorProperty().bind(codeMailTableView.comparatorProperty());
         codeMailTableView.setItems(sortedList);
+    }
+
+    public void addCodeMail(ActionEvent actionEvent) {
+        tableData.add(new CodeMail(addCode.getText(), addEmail.getText()));
+        setupFilter();
+    }
+
+    public Map<String, List<String>> getCurrentEmailTableData() {
+        Map<String, List<String>> data = new HashMap<>();
+        for (CodeMail codeMail : tableData) {
+            if (data.containsKey(codeMail.getCode())) {
+                data.get(codeMail.getCode()).add(codeMail.getEmail());
+            }
+            else {
+                List<String> emails = new ArrayList<>();
+                emails.add(codeMail.getEmail());
+                data.put(codeMail.getCode(), emails);
+            }
+        }
+        return data;
     }
 }

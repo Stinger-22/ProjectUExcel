@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +29,11 @@ public class SendOneController {
 
     private Plan plan;
     private Exporter exporter;
-    private Map<String, String> mails;
+    private Map<String, List<String>> mails;
     private String subject;
     private String text;
 
-    public void setup(Plan plan, Exporter exporter, Map<String, String> mails, String subject, String text) {
+    public void setup(Plan plan, Exporter exporter, Map<String, List<String>> mails, String subject, String text) {
         this.plan = plan;
         this.exporter = exporter;
         this.mails = mails;
@@ -54,8 +55,8 @@ public class SendOneController {
             return;
         }
         Teacher teacher = teacherTablePlacement.get(i);
-        String mail = mails.get(teacher.getCode());
-        if (mail == null) {
+        List<String> mailList = mails.get(teacher.getCode());
+        if (mailList == null) {
             //TODO Handle error
             return;
         }
@@ -65,7 +66,8 @@ public class SendOneController {
         exporter.export(teacher, exportPath);
         MailSender mailSender = MailSender.getMailSender();
         mailSender.setAttachment(file);
-        mailSender.sendMessageAttachment(mail, subject, text);
+        String[] mailArray = new String[mailList.size()];
+        mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject, text);
         file.delete();
 
         ((Node) (actionEvent.getSource())).getScene().getWindow().hide();

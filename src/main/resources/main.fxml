@@ -54,7 +54,10 @@
                                 </columns>
                               </TableView>
                               <TextField fx:id="filter" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
-                              <Button layoutX="287.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="122.0" text="Change email file" onAction="#changeEmails"/>
+                              <Button layoutX="287.0" layoutY="14.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="25.0" prefWidth="122.0" text="Change email file" />
+                              <Button layoutX="418.0" layoutY="454.0" mnemonicParsing="false" text="Add" onAction="#addCodeMail"/>
+                              <TextField fx:id="addCode" layoutX="14.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
+                              <TextField fx:id="addEmail" layoutX="140.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
                            </children></AnchorPane>
                     </content>
                   </Tab>
