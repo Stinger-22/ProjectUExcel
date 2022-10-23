@@ -5,6 +5,10 @@ import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
 import com.projectuexcel.table.export.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,11 +34,13 @@ import java.util.*;
 
 public class MainController {
     @FXML
+    private TextField filter;
+    @FXML
     private TableColumn<Map, String> codeColumn;
     @FXML
     private TableColumn<Map, String> emailColumn;
     @FXML
-    private TableView emailTable;
+    private TableView<CodeMail> codeMailTableView;
     @FXML
     private HTMLEditor text;
     @FXML
@@ -59,17 +65,19 @@ public class MainController {
     private Pane paneViewEmails;
 
     private MailSender mailSender;
-    private Map<String, String> mails;
+    private Map<String, String> mailsMap;
+    private ObservableList<CodeMail> tableData;
     private Plan plan;
 
     @FXML
     public void initialize() throws FileNotFoundException {
         this.mailSender = MailSender.getMailSender();
-        this.mails = importEmails("test_codemail.txt");
+        this.mailsMap = importEmails("test_codemail.txt");
 
         this.codeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         this.emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        setupEmailTable();
+        loadCodeMailTableView();
+        setupFilter();
     }
 
     public void selectTable(ActionEvent actionEvent) {
@@ -171,7 +179,7 @@ public class MainController {
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         SendOneController controller = loader.getController();
-        controller.setup(plan, getChosenExporter(), mails, subject.getText(), text.getHtmlText());
+        controller.setup(plan, getChosenExporter(), mailsMap, subject.getText(), text.getHtmlText());
         stage.show();
     }
 
@@ -187,7 +195,7 @@ public class MainController {
             exporter.export(teacher, exportPath);
             mailSender.setAttachment(file);
             //TODO handle when no mail found
-            String mail = mails.get(teacher.getCode());
+            String mail = mailsMap.get(teacher.getCode());
             if (mail == null) {
                 continue;
             }
@@ -204,17 +212,49 @@ public class MainController {
 
         for (Teacher teacher : teachers) {
             //TODO handle when no code
-            mail = mails.get(teacher.getCode());
+            mail = mailsMap.get(teacher.getCode());
             mailSender.sendMessageAttachment(mail, subject.getText(), text.getHtmlText());
         }
     }
 
-    private void setupEmailTable() {
-        List<CodeMail> data = new ArrayList<>();
-        List<String> keys = new ArrayList<>(mails.keySet());
+    private void loadCodeMailTableView() {
+        tableData = FXCollections.observableArrayList();
+        List<String> keys = new ArrayList<>(mailsMap.keySet());
         for (String key : keys) {
-            data.add(new CodeMail(key, mails.get(key)));
+            tableData.add(new CodeMail(key, mailsMap.get(key)));
         }
-        emailTable.getItems().addAll(data);
+    }
+
+    public void changeEmails() throws FileNotFoundException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text file", "*.txt")
+        );
+        File file = fileChooser.showOpenDialog(null);
+        if (file != null) {
+            mailsMap = importEmails(file.getAbsolutePath());
+            loadCodeMailTableView();
+            setupFilter();
+        }
+    }
+
+    private void setupFilter() {
+        FilteredList<CodeMail> filteredList = new FilteredList<CodeMail>(tableData, p -> true);
+        filter.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredList.setPredicate(codeMail -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                if (codeMail.getCode().contains(newValue)) {
+                    return true;
+                }
+                return false;
+            });
+        });
+
+        SortedList<CodeMail> sortedList = new SortedList<>(filteredList);
+        sortedList.comparatorProperty().bind(codeMailTableView.comparatorProperty());
+        codeMailTableView.setItems(sortedList);
     }
 }
