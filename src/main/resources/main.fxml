@@ -5,6 +5,8 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -22,8 +24,8 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <TextField fx:id="pathPlan" layoutX="14.0" layoutY="18.0" prefHeight="25.0" prefWidth="619.0" promptText="Path to plan" />
-                              <Button fx:id="choosePlan" layoutX="648.0" layoutY="18.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="140.0" text="Choose plan" />
+                              <TextField fx:id="pathPlan" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="619.0" promptText="Path to plan" />
+                              <Button fx:id="choosePlan" layoutX="646.0" layoutY="14.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="140.0" text="Choose plan" />
                               <Button layoutX="646.0" layoutY="67.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="60.0" prefWidth="140.0" text="Send origin to all" />
                               <Button layoutX="646.0" layoutY="127.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="60.0" prefWidth="140.0" text="Send part to all" />
                               <Button layoutX="646.0" layoutY="497.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="60.0" prefWidth="140.0" text="Export all" />
@@ -44,8 +46,16 @@
                   <Tab text="View emails">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                            <children>
-                            </children></AnchorPane>
+                           <children>
+                              <TableView fx:id="emailTable" layoutX="14.0" layoutY="67.0" prefHeight="376.0" prefWidth="395.0">
+                                <columns>
+                                  <TableColumn fx:id="codeColumn" prefWidth="120.0" text="Code" />
+                                  <TableColumn fx:id="emailColumn" prefWidth="274.0" text="Email" />
+                                </columns>
+                              </TableView>
+                              <TextField layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
+                              <Button layoutX="287.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="122.0" text="Change email file" />
+                           </children></AnchorPane>
                     </content>
                   </Tab>
               </tabs>

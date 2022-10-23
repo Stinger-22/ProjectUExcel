@@ -1,15 +1,16 @@
 package com.projectuexcel.ui;
 
+import com.projectuexcel.mail.CodeMail;
 import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
 import com.projectuexcel.table.export.*;
-import com.projectuexcel.ui.SendOneController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -25,12 +26,15 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class MainController {
+    @FXML
+    private TableColumn<Map, String> codeColumn;
+    @FXML
+    private TableColumn<Map, String> emailColumn;
+    @FXML
+    private TableView emailTable;
     @FXML
     private HTMLEditor text;
     @FXML
@@ -62,6 +66,10 @@ public class MainController {
     public void initialize() throws FileNotFoundException {
         this.mailSender = MailSender.getMailSender();
         this.mails = importEmails("test_codemail.txt");
+
+        this.codeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
+        this.emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        setupEmailTable();
     }
 
     public void selectTable(ActionEvent actionEvent) {
@@ -199,5 +207,14 @@ public class MainController {
             mail = mails.get(teacher.getCode());
             mailSender.sendMessageAttachment(mail, subject.getText(), text.getHtmlText());
         }
+    }
+
+    private void setupEmailTable() {
+        List<CodeMail> data = new ArrayList<>();
+        List<String> keys = new ArrayList<>(mails.keySet());
+        for (String key : keys) {
+            data.add(new CodeMail(key, mails.get(key)));
+        }
+        emailTable.getItems().addAll(data);
     }
 }
