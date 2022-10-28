@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class MailSender {
     private static MailSender mailSender;
 
-    private String senderMail = "max.botprog@gmail.com";
+    private String senderMail = "kartku.navantazennia@gmail.com";
     private Properties properties;
     private Session session;
 

@@ -1,10 +1,13 @@
 package com.projectuexcel.ui;
 
+import com.projectuexcel.concurrency.Monitor;
+import com.projectuexcel.concurrency.WaitForString;
 import com.projectuexcel.mail.CodeMail;
 import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
 import com.projectuexcel.table.export.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -32,8 +35,10 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 public class MainController {
     @FXML
@@ -75,7 +80,7 @@ public class MainController {
     private Map<String, List<String>> mailsMap;
     private ObservableList<CodeMail> tableData;
     private Plan plan;
-    private File emails;
+    private File emailsFile;
 
     @FXML
     public void initialize() throws FileNotFoundException {
@@ -161,9 +166,9 @@ public class MainController {
     }
 
     private Map<String, List<String>> importEmails(String path) throws FileNotFoundException {
-        Map<String, List<String>> emails = new HashMap<>();
-        File file = new File(path);
-        Scanner scanner = new Scanner(file);
+        Map<String, List<String>> importedEmails = new HashMap<>();
+        emailsFile = new File(path);
+        Scanner scanner = new Scanner(emailsFile);
         String[] line;
         while (scanner.hasNext()) {
             line = scanner.nextLine().split("=");
@@ -173,9 +178,9 @@ public class MainController {
             for (String mail : line) {
                 tempMails.add(mail.trim());
             }
-            emails.put(code, tempMails);
+            importedEmails.put(code, tempMails);
         }
-        return emails;
+        return importedEmails;
     }
 
     private TeacherExporter getChosenExporter() {
@@ -207,30 +212,61 @@ public class MainController {
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         SendOneController controller = loader.getController();
-        controller.setup(plan, getChosenExporter(), mailsMap, subject.getText(), text.getHtmlText());
+        controller.setup(plan, getChosenExporter(), getCurrentEmailTableData(), subject.getText(), text.getHtmlText());
         stage.show();
     }
 
     public void sendAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
         //TODO progressbar
         openPlan();
-        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
-        String exportPath = "Plan.xlsx";
-        File file;
-        Exporter exporter = getChosenExporter();
-        for (Teacher teacher : teacherTablePlacement) {
-            file = new File(exportPath);
-            exporter.export(teacher, exportPath);
-            mailSender.setAttachment(file);
-            //TODO handle when no mail found
-            List<String> mailList = mailsMap.get(teacher.getCode());
-            if (mailList == null) {
-                continue;
+        WaitForString waitForString = new WaitForString();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+                String exportPath = "Plan.xlsx";
+                File file;
+                Exporter exporter = getChosenExporter();
+                for (Teacher teacher : teacherTablePlacement) {
+                    file = new File(exportPath);
+                    exporter.export(teacher, exportPath);
+                    mailSender.setAttachment(file);
+                    List<String> mailList = getCurrentEmailTableData().get(teacher.getCode());
+                    if (mailList == null) {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    emailNotFound(waitForString, teacher.getCode());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        waitForString.doWait();
+                        if (waitForString.getString() != null) {
+                            try {
+                                addCodeMail(teacher.getCode(), waitForString.getString());
+                                mailSender.sendMessageAttachment(waitForString.getString(), subject.getText(), text.getHtmlText());
+                            } catch (MessagingException | IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    else {
+                        String[] mailArray = new String[mailList.size()];
+                        try {
+                            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
+                        } catch (MessagingException | IOException e) {
+                            e.printStackTrace();
+                        }
+                        file.delete();
+                    }
+                }
             }
-            String[] mailArray = new String[mailList.size()];
-            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
-            file.delete();
-        }
+        });
+
+        thread.start();
     }
 
     public void sendOriginToAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
@@ -260,21 +296,22 @@ public class MainController {
         }
     }
 
-    public void changeEmails() throws FileNotFoundException {
+    public void changeEmails() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Text file", "*.txt")
         );
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
-            emails = file;
-            mailsMap = importEmails(emails.getAbsolutePath());
+            saveEmailTableChanges();
+            emailsFile = file;
+            mailsMap = importEmails(emailsFile.getAbsolutePath());
             loadCodeMailTableView();
             setupFilter();
         }
     }
 
-    private void setupFilter() {
+    public void setupFilter() {
         FilteredList<CodeMail> filteredList = new FilteredList<CodeMail>(tableData, p -> true);
         filter.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredList.setPredicate(codeMail -> {
@@ -282,10 +319,7 @@ public class MainController {
                     return true;
                 }
 
-                if (codeMail.getCode().contains(newValue)) {
-                    return true;
-                }
-                return false;
+                return codeMail.getCode().contains(newValue);
             });
         });
 
@@ -312,5 +346,46 @@ public class MainController {
             }
         }
         return data;
+    }
+
+    public void saveEmailTableChanges() throws IOException {
+        FileWriter fileWriter = new FileWriter(emailsFile, false);
+        Map<String, List<String>> emailData = getCurrentEmailTableData();
+        List<String> keys = new ArrayList<>(emailData.keySet());
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String key : keys) {
+            stringBuilder.setLength(0);
+            stringBuilder.append(key).append("=");
+            List<String> emails = emailData.get(key);
+            for (int i = 0; i < emails.size() - 1; i++) {
+                stringBuilder.append(emails.get(i)).append(",");
+            }
+            stringBuilder.append(emails.get(emails.size() - 1)).append("\n");
+            fileWriter.write(stringBuilder.toString());
+        }
+        fileWriter.close();
+    }
+
+    private void emailNotFound(WaitForString waitForString, String code) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/newEmail.fxml"));
+
+        VBox vbox = loader.load();
+        Scene scene = new Scene(vbox);
+
+        Stage stage = new Stage();
+        stage.setTitle("New email");
+        stage.getIcons().add(new Image("file:planExporter.png"));
+        stage.setAlwaysOnTop(true);
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        NewEmailController controller = loader.getController();
+        controller.setup(waitForString, code);
+        stage.show();
+    }
+
+    private void addCodeMail(String code, String mail) {
+        tableData.add(new CodeMail(code, mail));
+        setupFilter();
     }
 }

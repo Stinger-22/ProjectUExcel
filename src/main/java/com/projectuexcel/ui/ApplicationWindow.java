@@ -7,7 +7,11 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class ApplicationWindow extends Application {
+    private MainController controller;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupMainStage(primaryStage);
@@ -16,17 +20,17 @@ public class ApplicationWindow extends Application {
         loader.setLocation(getClass().getResource("/main.fxml"));
 
         VBox vbox = loader.load();
+        controller = loader.getController();
+
         Scene scene = new Scene(vbox);
-
-
 
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     @Override
-    public void stop() {
-
+    public void stop() throws IOException {
+        controller.saveEmailTableChanges();
     }
 
     public static void main(String[] args) {
