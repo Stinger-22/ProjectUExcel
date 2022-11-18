@@ -1,10 +1,7 @@
 package com.projectuexcel.mail;
 
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,13 +11,14 @@ import java.util.Scanner;
 public class MailSender {
     private static MailSender mailSender;
 
-    private String senderMail = "kartku.navantazennia@gmail.com";
+    private String senderMail;
     private Properties properties;
-    private Session session;
+    private final InternetAddress internetAddress;
+    private final Session session;
 
     private File attachment;
 
-    private MailSender() throws FileNotFoundException {
+    private MailSender() throws FileNotFoundException, AddressException {
         properties = getProperties();
         String password = getPassword();
 
@@ -31,10 +29,11 @@ public class MailSender {
             }
         };
 
+        internetAddress = new InternetAddress(senderMail);
         session = Session.getInstance(properties, authenticator);
     }
 
-    public static MailSender getMailSender() throws FileNotFoundException {
+    public static MailSender getMailSender() throws FileNotFoundException, AddressException {
         if (mailSender == null) {
             mailSender = new MailSender();
         }
@@ -43,6 +42,7 @@ public class MailSender {
 
     private String getPassword() throws FileNotFoundException {
         Scanner scanner = new Scanner(new File("password.txt"));
+        senderMail = scanner.next();
         return scanner.next();
     }
 
@@ -72,8 +72,6 @@ public class MailSender {
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(senderMail));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
-
-        //TODO: try use multithreading to increase speed?
         sendMessage(message, subject, text);
     }
 
@@ -82,12 +80,10 @@ public class MailSender {
             throw new IllegalStateException("No attachment file is set. Use method setAttachment");
         }
         Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(senderMail));
+        message.setFrom(internetAddress);
         for (String receiver : receivers) {
             message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
         }
-
-        //TODO: try use multithreading to increase speed?
         sendMessage(message, subject, text);
     }
 
