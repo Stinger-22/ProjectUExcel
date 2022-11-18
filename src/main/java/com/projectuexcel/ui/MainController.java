@@ -33,6 +33,7 @@ import org.apache.poi.hssf.OldExcelFormatException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -83,7 +84,7 @@ public class MainController {
     private File emailsFile;
 
     @FXML
-    public void initialize() throws FileNotFoundException {
+    public void initialize() throws FileNotFoundException, AddressException {
         this.mailSender = MailSender.getMailSender();
         this.mailsMap = importEmails("test_codemail.txt");
 
@@ -107,7 +108,7 @@ public class MainController {
         setupFilter();
     }
 
-    public void selectTable(ActionEvent actionEvent) {
+    public void selectTable(ActionEvent actionEvent) throws IOException, InvalidFormatException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Excel files", "*.xls", "*.xlsx")
@@ -116,22 +117,34 @@ public class MainController {
         if (file != null) {
             pathPlan.setText(file.getAbsolutePath());
         }
+        try {
+            this.plan = new Plan(pathPlan.getText());
+        }
+        catch (OldExcelFormatException exception) {
+            pathPlan.setText(null);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "File was created using Excel 5 which is too old. Save file using Excel in new format and try again.", ButtonType.OK);
+            alert.showAndWait();
+        }
     }
 
     public void exportAll(ActionEvent actionEvent) throws IOException, InvalidFormatException {
-        openPlan();
+        if (plan == null) {
+            return;
+        }
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        String path = directoryChooser.showDialog(null).getAbsolutePath() + "\\";
+        File file = directoryChooser.showDialog(null);
+        String path = file.getAbsolutePath() + "\\";
         List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
         Exporter exporter = getChosenExporter();
         for (Teacher teacher : teacherTablePlacement) {
-            //TODO: make export .xls or .xlsx depending on origin file
             exporter.export(teacher, path + teacher.getCode() + ".xlsx");
         }
     }
 
     public void exportOne(ActionEvent actionEvent) throws IOException, InvalidFormatException {
-        openPlan();
+        if (plan == null) {
+            return;
+        }
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/exportOne.fxml"));
@@ -148,21 +161,6 @@ public class MainController {
         ExportOneController controller = loader.getController();
         controller.setup(plan, getChosenExporter());
         stage.show();
-    }
-
-    private void openPlan() throws IOException, InvalidFormatException {
-        String sourcePath = pathPlan.getText();
-        if (plan != null && plan.getFile().getAbsolutePath().equals(sourcePath)) {
-            return;
-        }
-        try {
-            this.plan = new Plan(sourcePath);
-        }
-        catch (OldExcelFormatException exception) {
-            //TODO MessageBox Error
-            System.out.println("Convert file to .xlsx");
-            exception.printStackTrace();
-        }
     }
 
     private Map<String, List<String>> importEmails(String path) throws FileNotFoundException {
@@ -197,7 +195,9 @@ public class MainController {
 
     //TODO create new thread for sending messages
     public void sendOne(ActionEvent actionEvent) throws IOException, InvalidFormatException {
-        openPlan();
+        if (plan == null) {
+            return;
+        }
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/sendOne.fxml"));
@@ -218,7 +218,9 @@ public class MainController {
 
     public void sendAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
         //TODO progressbar
-        openPlan();
+        if (plan == null) {
+            return;
+        }
         WaitForString waitForString = new WaitForString();
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -270,7 +272,9 @@ public class MainController {
     }
 
     public void sendOriginToAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
-        openPlan();
+        if (plan == null) {
+            return;
+        }
         List<Teacher> teachers = plan.getTeacherTablePlacement();
         mailSender.setAttachment(plan.getFile());
 

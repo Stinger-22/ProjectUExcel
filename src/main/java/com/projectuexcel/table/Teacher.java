@@ -1,7 +1,6 @@
 package com.projectuexcel.table;
 
 import java.util.List;
-import java.util.Objects;
 
 public class Teacher {
     private String code;

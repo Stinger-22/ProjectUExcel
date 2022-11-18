@@ -9,6 +9,7 @@ import org.apache.poi.hssf.OldExcelFormatException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class ApplicationConsole {
     private Plan plan;
     private Map<String, String> mails;
 
-    public ApplicationConsole() throws FileNotFoundException {
+    public ApplicationConsole() throws FileNotFoundException, AddressException {
         this.mailSender = MailSender.getMailSender();
         this.mails = importEmails("test_codemail.txt");
     }
