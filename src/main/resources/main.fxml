@@ -13,33 +13,33 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.HTMLEditor?>
 
-<VBox prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projectuexcel.ui.MainController">
+<VBox prefHeight="600.0" prefWidth="800.0" stylesheets="@main.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projectuexcel.ui.MainController">
 
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" pickOnBounds="false" prefHeight="600.0" prefWidth="733.0" VBox.vgrow="ALWAYS">
       <children>
-            <TabPane prefHeight="600.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane prefHeight="600.0" prefWidth="887.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab text="Plan">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="571.0" prefWidth="911.0" stylesheets="@main.css">
                            <children>
-                              <TextField fx:id="pathPlan" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="619.0" promptText="Path to plan" />
-                              <Button fx:id="choosePlan" layoutX="646.0" layoutY="14.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="140.0" text="Choose plan" />
-                              <Button layoutX="646.0" layoutY="67.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="60.0" prefWidth="140.0" text="Send origin to all" />
-                              <Button layoutX="646.0" layoutY="127.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="60.0" prefWidth="140.0" text="Send part to all" />
-                              <Button layoutX="646.0" layoutY="497.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="60.0" prefWidth="140.0" text="Export all" />
-                              <Button layoutX="646.0" layoutY="437.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="60.0" prefWidth="140.0" text="Export one" />
-                              <Button layoutX="646.0" layoutY="187.0" mnemonicParsing="false" onAction="#sendOne" prefHeight="60.0" prefWidth="140.0" text="Send part to one" />
-                              <RadioButton fx:id="selectYear" layoutX="661.0" layoutY="264.0" mnemonicParsing="false" selected="true" text="year">
+                              <TextField fx:id="pathPlan" layoutX="14.0" layoutY="14.0" prefHeight="35.0" prefWidth="680.0" promptText="Path to plan" />
+                              <Button fx:id="choosePlan" layoutX="712.0" layoutY="13.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="145.0" text="Choose plan" />
+                              <Button layoutX="712.0" layoutY="66.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="25.0" prefWidth="145.0" text="Send origin to all" />
+                              <Button layoutX="712.0" layoutY="119.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="25.0" prefWidth="145.0" text="Send part to all" />
+                              <Button layoutX="719.0" layoutY="466.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="25.0" prefWidth="145.0" text="Export all" />
+                              <Button layoutX="719.0" layoutY="416.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="25.0" prefWidth="145.0" text="Export one" />
+                              <Button layoutX="712.0" layoutY="172.0" mnemonicParsing="false" onAction="#sendOne" prefHeight="25.0" prefWidth="145.0" text="Send part to one" />
+                              <RadioButton fx:id="selectYear" layoutX="719.0" layoutY="222.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" selected="true" text="year">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="partition" />
                                  </toggleGroup>
                               </RadioButton>
-                              <RadioButton fx:id="selectFirstSemester" layoutX="661.0" layoutY="294.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="116.0" text="1st semester" toggleGroup="$partition" />
-                              <RadioButton fx:id="selectSecondSemester" layoutX="661.0" layoutY="323.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="96.0" text="2nd semester" toggleGroup="$partition" />
-                              <HTMLEditor fx:id="text" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="14.0" layoutY="105.0" prefHeight="452.0" prefWidth="619.0" />
-                              <TextField fx:id="subject" layoutX="14.0" layoutY="67.0" prefHeight="25.0" prefWidth="619.0" promptText="Subject" />
+                              <RadioButton fx:id="selectFirstSemester" layoutX="719.0" layoutY="249.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="1st semester" toggleGroup="$partition" />
+                              <RadioButton fx:id="selectSecondSemester" layoutX="719.0" layoutY="276.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="2nd semester" toggleGroup="$partition" />
+                              <HTMLEditor fx:id="text" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="14.0" layoutY="117.0" prefHeight="441.0" prefWidth="680.0" />
+                              <TextField fx:id="subject" layoutX="14.0" layoutY="67.0" prefHeight="35.0" prefWidth="680.0" promptText="Subject" />
                            </children></AnchorPane>
                   </content>
                 </Tab>
@@ -47,17 +47,17 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <TableView fx:id="codeMailTableView" layoutX="14.0" layoutY="67.0" prefHeight="376.0" prefWidth="395.0">
+                              <TableView fx:id="codeMailTableView" layoutX="221.0" layoutY="64.0" prefHeight="376.0" prefWidth="471.0">
                                 <columns>
                                   <TableColumn fx:id="codeColumn" prefWidth="120.0" text="Code" />
-                                  <TableColumn fx:id="emailColumn" prefWidth="274.0" text="Email" />
+                                  <TableColumn fx:id="emailColumn" prefWidth="350.0" text="Email" />
                                 </columns>
                               </TableView>
-                              <TextField fx:id="filter" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
-                              <Button layoutX="287.0" layoutY="14.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="25.0" prefWidth="122.0" text="Change email file" />
-                              <Button layoutX="418.0" layoutY="454.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
-                              <TextField fx:id="addCode" layoutX="14.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
-                              <TextField fx:id="addEmail" layoutX="140.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
+                              <TextField fx:id="filter" layoutX="221.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
+                              <Button layoutX="511.0" layoutY="13.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="37.0" prefWidth="181.0" text="Change email file" />
+                              <Button layoutX="638.0" layoutY="453.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
+                              <TextField fx:id="addCode" layoutX="221.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
+                              <TextField fx:id="addEmail" layoutX="351.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
                            </children></AnchorPane>
                     </content>
                   </Tab>

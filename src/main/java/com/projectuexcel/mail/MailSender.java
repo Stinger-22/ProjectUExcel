@@ -72,7 +72,7 @@ public class MailSender {
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(senderMail));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
-        sendMessage(message, subject, text);
+//        sendMessage(message, subject, text);
     }
 
     public void sendMessageAttachment(String[] receivers, String subject, String text) throws MessagingException, IOException {
@@ -84,7 +84,7 @@ public class MailSender {
         for (String receiver : receivers) {
             message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
         }
-        sendMessage(message, subject, text);
+//        sendMessage(message, subject, text);
     }
 
     private void sendMessage(Message message, String subject, String text) throws MessagingException, IOException {
