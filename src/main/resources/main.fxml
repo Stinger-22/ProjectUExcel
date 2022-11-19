@@ -36,8 +36,8 @@
                                     <ToggleGroup fx:id="partition" />
                                  </toggleGroup>
                               </RadioButton>
-                              <RadioButton fx:id="selectFirstSemester" layoutX="661.0" layoutY="294.0" mnemonicParsing="false" prefWidth="0.0" text="1" toggleGroup="$partition" />
-                              <RadioButton fx:id="selectSecondSemester" layoutX="661.0" layoutY="323.0" mnemonicParsing="false" text="2" toggleGroup="$partition" />
+                              <RadioButton fx:id="selectFirstSemester" layoutX="661.0" layoutY="294.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="116.0" text="1st semester" toggleGroup="$partition" />
+                              <RadioButton fx:id="selectSecondSemester" layoutX="661.0" layoutY="323.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="96.0" text="2nd semester" toggleGroup="$partition" />
                               <HTMLEditor fx:id="text" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="14.0" layoutY="105.0" prefHeight="452.0" prefWidth="619.0" />
                               <TextField fx:id="subject" layoutX="14.0" layoutY="67.0" prefHeight="25.0" prefWidth="619.0" promptText="Subject" />
                            </children></AnchorPane>
@@ -55,7 +55,7 @@
                               </TableView>
                               <TextField fx:id="filter" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
                               <Button layoutX="287.0" layoutY="14.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="25.0" prefWidth="122.0" text="Change email file" />
-                              <Button layoutX="418.0" layoutY="454.0" mnemonicParsing="false" text="Add" onAction="#addCodeMail"/>
+                              <Button layoutX="418.0" layoutY="454.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
                               <TextField fx:id="addCode" layoutX="14.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
                               <TextField fx:id="addEmail" layoutX="140.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
                            </children></AnchorPane>

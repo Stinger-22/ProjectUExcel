@@ -1,6 +1,5 @@
 package com.projectuexcel.ui;
 
-import com.projectuexcel.concurrency.Monitor;
 import com.projectuexcel.concurrency.WaitForString;
 import com.projectuexcel.mail.CodeMail;
 import com.projectuexcel.mail.MailSender;
@@ -39,7 +38,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 public class MainController {
     @FXML
@@ -127,7 +125,7 @@ public class MainController {
         }
     }
 
-    public void exportAll(ActionEvent actionEvent) throws IOException, InvalidFormatException {
+    public void exportAll(ActionEvent actionEvent) {
         if (plan == null) {
             return;
         }
@@ -141,7 +139,7 @@ public class MainController {
         }
     }
 
-    public void exportOne(ActionEvent actionEvent) throws IOException, InvalidFormatException {
+    public void exportOne(ActionEvent actionEvent) throws IOException {
         if (plan == null) {
             return;
         }
@@ -194,7 +192,7 @@ public class MainController {
     }
 
     //TODO create new thread for sending messages
-    public void sendOne(ActionEvent actionEvent) throws IOException, InvalidFormatException {
+    public void sendOne(ActionEvent actionEvent) throws IOException {
         if (plan == null) {
             return;
         }
@@ -216,16 +214,25 @@ public class MainController {
         stage.show();
     }
 
-    public void sendAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
-        //TODO progressbar
+    public void sendAll(ActionEvent actionEvent) {
         if (plan == null) {
             return;
         }
         WaitForString waitForString = new WaitForString();
+        SendAllController controller;
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+        try {
+            controller = setupSendingWindow();
+            controller.setup(1.0 / teacherTablePlacement.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't show sending window. Messages won't be send.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
                 String exportPath = "Plan.xlsx";
                 File file;
                 Exporter exporter = getChosenExporter();
@@ -250,28 +257,51 @@ public class MainController {
                             try {
                                 addCodeMail(teacher.getCode(), waitForString.getString());
                                 mailSender.sendMessageAttachment(waitForString.getString(), subject.getText(), text.getHtmlText());
+                                controller.messageSent(teacher.getCode(), waitForString.getString());
                             } catch (MessagingException | IOException e) {
                                 e.printStackTrace();
                             }
+                        }
+                        else {
+                            controller.messageNotSent(teacher.getCode());
                         }
                     }
                     else {
                         String[] mailArray = new String[mailList.size()];
                         try {
                             mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
+                            controller.messageSent(teacher.getCode(), mailArray);
                         } catch (MessagingException | IOException e) {
                             e.printStackTrace();
                         }
                         file.delete();
                     }
                 }
+                controller.finish();
             }
         });
-
         thread.start();
     }
 
-    public void sendOriginToAll(ActionEvent actionEvent) throws MessagingException, IOException, InvalidFormatException {
+    private SendAllController setupSendingWindow() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/sending.fxml"));
+
+        VBox vbox = loader.load();
+        Scene scene = new Scene(vbox);
+
+        Stage stage = new Stage();
+        stage.setTitle("Sending process");
+        stage.getIcons().add(new Image("file:planExporter.png"));
+        stage.setAlwaysOnTop(true);
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        SendAllController controller = loader.getController();
+        stage.show();
+        return controller;
+    }
+
+    public void sendOriginToAll(ActionEvent actionEvent) throws MessagingException, IOException {
         if (plan == null) {
             return;
         }
