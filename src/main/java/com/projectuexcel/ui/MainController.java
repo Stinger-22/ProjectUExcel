@@ -191,7 +191,6 @@ public class MainController {
         throw new IllegalStateException();
     }
 
-    //TODO create new thread for sending messages
     public void sendOne(ActionEvent actionEvent) throws IOException {
         if (plan == null) {
             return;
@@ -242,29 +241,7 @@ public class MainController {
                     mailSender.setAttachment(file);
                     List<String> mailList = getCurrentEmailTableData().get(teacher.getCode());
                     if (mailList == null) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    emailNotFound(waitForString, teacher.getCode());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        waitForString.doWait();
-                        if (waitForString.getString() != null) {
-                            try {
-                                addCodeMail(teacher.getCode(), waitForString.getString());
-                                mailSender.sendMessageAttachment(waitForString.getString(), subject.getText(), text.getHtmlText());
-                                controller.messageSent(teacher.getCode(), waitForString.getString());
-                            } catch (MessagingException | IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else {
-                            controller.messageNotSent(teacher.getCode());
-                        }
+                        handleNoEmail(waitForString, controller, teacher);
                     }
                     else {
                         String[] mailArray = new String[mailList.size()];
@@ -301,21 +278,69 @@ public class MainController {
         return controller;
     }
 
-    public void sendOriginToAll(ActionEvent actionEvent) throws MessagingException, IOException {
+    public void sendOriginToAll(ActionEvent actionEvent) {
         if (plan == null) {
             return;
         }
-        List<Teacher> teachers = plan.getTeacherTablePlacement();
-        mailSender.setAttachment(plan.getFile());
-
-        for (Teacher teacher : teachers) {
-            //TODO handle when no code
-            List<String> mailList = mailsMap.get(teacher.getCode());
-            if (mailList == null) {
-                continue;
+        WaitForString waitForString = new WaitForString();
+        SendAllController controller;
+        List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
+        try {
+            controller = setupSendingWindow();
+            controller.setup(1.0 / teacherTablePlacement.size());
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't show sending window. Messages won't be send.\nError:\n" + e.getMessage(), ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mailSender.setAttachment(plan.getFile());
+                for (Teacher teacher : teacherTablePlacement) {
+                    List<String> mailList = getCurrentEmailTableData().get(teacher.getCode());
+                    if (mailList == null) {
+                        handleNoEmail(waitForString, controller, teacher);
+                    }
+                    else {
+                        String[] mailArray = new String[mailList.size()];
+                        try {
+                            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
+                            controller.messageSent(teacher.getCode(), mailArray);
+                        } catch (MessagingException | IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                controller.finish();
             }
-            String[] mailArray = new String[mailList.size()];
-            mailSender.sendMessageAttachment(mailArray, subject.getText(), text.getHtmlText());
+        });
+        thread.start();
+    }
+
+    private void handleNoEmail(WaitForString waitForString, SendAllController controller, Teacher teacher) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    emailNotFound(waitForString, teacher.getCode());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        waitForString.doWait();
+        if (waitForString.getString() != null) {
+            try {
+                addCodeMail(teacher.getCode(), waitForString.getString());
+                mailSender.sendMessageAttachment(waitForString.getString(), subject.getText(), text.getHtmlText());
+                controller.messageSent(teacher.getCode(), waitForString.getString());
+            } catch (MessagingException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            controller.messageNotSent(teacher.getCode());
         }
     }
 
