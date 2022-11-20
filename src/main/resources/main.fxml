@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.web.HTMLEditor?>
 
 <VBox prefHeight="600.0" prefWidth="800.0" stylesheets="@main.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projectuexcel.ui.MainController">
@@ -26,7 +28,7 @@
                            <children>
                               <TextField fx:id="pathPlan" layoutX="14.0" layoutY="14.0" prefHeight="35.0" prefWidth="680.0" promptText="Path to plan" />
                               <Button fx:id="choosePlan" layoutX="712.0" layoutY="13.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="145.0" text="Choose plan" />
-                              <Button layoutX="712.0" layoutY="66.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="25.0" prefWidth="145.0" text="Send origin to all" />
+                              <Button layoutX="712.0" layoutY="66.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="25.0" prefWidth="145.0" text="Send origin file" />
                               <Button layoutX="712.0" layoutY="119.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="25.0" prefWidth="145.0" text="Send part to all" />
                               <Button layoutX="719.0" layoutY="466.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="25.0" prefWidth="145.0" text="Export all" />
                               <Button layoutX="719.0" layoutY="416.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="25.0" prefWidth="145.0" text="Export one" />
@@ -59,6 +61,43 @@
                               <TextField fx:id="addCode" layoutX="221.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
                               <TextField fx:id="addEmail" layoutX="351.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
                            </children></AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="History">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="planHistory" layoutX="221.0" layoutY="64.0" prefHeight="376.0" prefWidth="471.0">
+                                 <columns>
+                                    <TableColumn fx:id="dateColumn" prefWidth="165.0" text="Date" />
+                                    <TableColumn fx:id="fileNameColumn" prefWidth="305.0" text="File name" />
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="Help">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="30.0" prefHeight="153.0" prefWidth="750.0" text="                                                                                        Tab &quot;Plan&quot;&#10;Use button &quot;Choose plan&quot; and select required file to send.&#10;Write some text in built-in editor.&#10;You can send selected Excel file with no changes using &quot;Send origin file&quot;.&#10;If you need you can send Excel table with only his information. &#10;You have options to send only &quot;Year&quot;, &quot;1st semester&quot; or &quot;2nd semester&quot; info about.&#10;Also you can save that file internally using export buttons.">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="183.0" prefHeight="123.0" prefWidth="750.0" text="                                                                                  Tab &quot;View emails&quot;&#10;Here you can see table which gives info to program where to send messages.&#10;You can change file with email info by clicking on button &quot;Change email file&quot;.&#10;Below the table you can write new code and email so messages will be sent there.&#10;Selecting row in table and pressing button &quot;Delete&quot; on keyboard you delete row from table.">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="306.0" prefHeight="55.0" prefWidth="750.0" text="                                                                                      Tab &quot;History&quot;:&#10;In this table you can see saved Excel files. Double click on row to open that file.">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </AnchorPane>
                     </content>
                   </Tab>
               </tabs>

@@ -1,4 +1,4 @@
-package com.projectuexcel.mail;
+package com.projectuexcel.ui.table;
 
 public class CodeMail {
     private String code;
@@ -23,5 +23,13 @@ public class CodeMail {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "CodeMail{" +
+                "code='" + code + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

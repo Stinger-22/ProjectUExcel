@@ -1,11 +1,12 @@
 package com.projectuexcel.ui;
 
 import com.projectuexcel.concurrency.WaitForString;
-import com.projectuexcel.mail.CodeMail;
+import com.projectuexcel.ui.table.CodeMail;
 import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
 import com.projectuexcel.table.export.*;
+import com.projectuexcel.ui.table.DateName;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,10 +18,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
@@ -33,11 +38,13 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class MainController {
     @FXML
@@ -74,18 +81,28 @@ public class MainController {
     private Pane paneExport;
     @FXML
     private Pane paneViewEmails;
+    @FXML
+    private TableView<DateName> planHistory;
+    @FXML
+    private TableColumn<Map, String> dateColumn;
+    @FXML
+    private TableColumn<Map, String> fileNameColumn;
 
     private MailSender mailSender;
     private Map<String, List<String>> mailsMap;
     private ObservableList<CodeMail> tableData;
+    private ObservableList<DateName> historyData;
     private Plan plan;
     private File emailsFile;
 
     @FXML
     public void initialize() throws FileNotFoundException, AddressException {
         this.mailSender = MailSender.getMailSender();
-        this.mailsMap = importEmails("test_codemail.txt");
+        setupEmailTable();
+        setupHistoryTable();
+    }
 
+    private void setupEmailTable() {
         this.codeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         this.emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
@@ -101,10 +118,39 @@ public class MainController {
                 }
             }
         });
-
-        loadCodeMailTableView();
-        setupFilter();
     }
+
+    private void setupHistoryTable() throws FileNotFoundException {
+        planHistory.setRowFactory( tableView -> {
+            TableRow<DateName> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty()) ) {
+                    DateName dateName = row.getItem();
+                    try {
+                        Desktop.getDesktop().open(new File("history\\" + dateName.getName()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return row ;
+        });
+        this.dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        this.fileNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        File historyTxt = new File("history\\history.txt");
+        Scanner scanner = new Scanner(historyTxt);
+        String[] line;
+        historyData = FXCollections.observableArrayList();
+        while (scanner.hasNext()) {
+            line = scanner.nextLine().split("=");
+            String date = line[0].trim();
+            String name = line[1].trim();
+            historyData.add(new DateName(date, name));
+        }
+        planHistory.setItems(historyData);
+    }
+
 
     public void selectTable(ActionEvent actionEvent) throws IOException, InvalidFormatException {
         FileChooser fileChooser = new FileChooser();
@@ -408,6 +454,9 @@ public class MainController {
     }
 
     public void saveEmailTableChanges() throws IOException {
+        if (emailsFile == null) {
+            return;
+        }
         FileWriter fileWriter = new FileWriter(emailsFile, false);
         Map<String, List<String>> emailData = getCurrentEmailTableData();
         List<String> keys = new ArrayList<>(emailData.keySet());
