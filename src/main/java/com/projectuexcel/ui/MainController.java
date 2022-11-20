@@ -1,11 +1,11 @@
 package com.projectuexcel.ui;
 
 import com.projectuexcel.concurrency.WaitForString;
-import com.projectuexcel.ui.table.CodeMail;
 import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
 import com.projectuexcel.table.export.*;
+import com.projectuexcel.ui.table.CodeMail;
 import com.projectuexcel.ui.table.DateName;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -17,16 +17,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.DirectoryChooser;
@@ -43,8 +39,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class MainController {
     @FXML
@@ -73,14 +69,6 @@ public class MainController {
     private RadioButton selectSecondSemester;
     @FXML
     private TextField pathPlan;
-    @FXML
-    private Button choosePlan;
-    @FXML
-    private Pane paneSend;
-    @FXML
-    private Pane paneExport;
-    @FXML
-    private Pane paneViewEmails;
     @FXML
     private TableView<DateName> planHistory;
     @FXML
@@ -417,16 +405,13 @@ public class MainController {
     }
 
     public void setupFilter() {
-        FilteredList<CodeMail> filteredList = new FilteredList<CodeMail>(tableData, p -> true);
-        filter.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredList.setPredicate(codeMail -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-
-                return codeMail.getCode().contains(newValue);
-            });
-        });
+        FilteredList<CodeMail> filteredList = new FilteredList<>(tableData, p -> true);
+        filter.textProperty().addListener((observable, oldValue, newValue) -> filteredList.setPredicate(codeMail -> {
+            if (newValue == null || newValue.isEmpty()) {
+                return true;
+            }
+            return codeMail.getCode().contains(newValue);
+        }));
 
         SortedList<CodeMail> sortedList = new SortedList<>(filteredList);
         sortedList.comparatorProperty().bind(codeMailTableView.comparatorProperty());
@@ -495,5 +480,9 @@ public class MainController {
     private void addCodeMail(String code, String mail) {
         tableData.add(new CodeMail(code, mail));
         setupFilter();
+    }
+
+    public Plan getPlan() {
+        return plan;
     }
 }

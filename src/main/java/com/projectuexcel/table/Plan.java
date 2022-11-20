@@ -157,6 +157,10 @@ public class Plan {
         return teacherPlacement;
     }
 
+    public String getDate() {
+        return header.getCell(1).getStringCellValue();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
