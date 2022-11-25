@@ -6,7 +6,9 @@ import com.projectuexcel.table.export.Exporter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 
@@ -46,11 +48,10 @@ public class ExportOneController {
 
     public void ok(ActionEvent actionEvent) {
         List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
-
         int i = searchTeacherByCode(teacherTablePlacement, code.getText());
         if (i == -1) {
-            //TODO MessageBox Error
-            System.out.println("Викладача з такими кодом не існує");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No teacher with existing code.", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         exporter.export(teacherTablePlacement.get(i), pathFolder.getText() + code.getText() + ".xlsx");

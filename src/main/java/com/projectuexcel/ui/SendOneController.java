@@ -7,7 +7,9 @@ import com.projectuexcel.table.export.Exporter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
 import javax.mail.MessagingException;
@@ -49,14 +51,15 @@ public class SendOneController {
 
         int i = searchTeacherByCode(teacherTablePlacement, code.getText());
         if (i == -1) {
-//            TODO MessageBox Error
-            System.out.println("Викладача з такими кодом не існує");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No teacher with existing code.", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         Teacher teacher = teacherTablePlacement.get(i);
         List<String> mailList = mails.get(teacher.getCode());
         if (mailList == null) {
-            //TODO Handle error
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No email for this teacher. Add it to email table.", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
 

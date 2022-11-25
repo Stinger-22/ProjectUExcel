@@ -239,7 +239,6 @@ public class MainController {
         Stage stage = new Stage();
         stage.setTitle("Send one");
         stage.getIcons().add(new Image("file:planExporter.png"));
-        stage.setAlwaysOnTop(true);
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         SendOneController controller = loader.getController();
