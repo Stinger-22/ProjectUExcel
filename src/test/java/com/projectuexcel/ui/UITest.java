@@ -9,6 +9,7 @@ import javafx.scene.web.HTMLEditor;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.api.FxAssert;
+import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
@@ -18,8 +19,11 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -133,5 +137,61 @@ public class UITest extends ApplicationTest {
         clickOn(node);
         push(KeyCode.DELETE);
         assertEquals(new CodeMail("БББ", "maxym.sobol@gmail.com"), codeMailObservableList.get(0));
+    }
+
+    @Test
+    public void exportOneTest() {
+        clickOn("#choosePlan");
+        String pathPlan = System.getProperty("user.dir") + "\\UITest.xlsx";
+        copyText(pathPlan);
+        clickOn("#ExportOne");
+        FxRobot robot = targetWindow("Export one");
+        robot.clickOn("#pathFolder");
+        copyText(System.getProperty("user.dir") + "\\");
+        robot.clickOn("#code");
+        copyText("ААА");
+        robot.clickOn("#buttonOk");
+        File folder = new File(System.getProperty("user.dir") + "\\");
+        File[] files = folder.listFiles();
+
+        boolean imported = false;
+        for (File file : files) {
+            if (file.isFile() && file.getName().equals("ААА.xlsx")) {
+                imported = true;
+                file.delete();
+                break;
+            }
+        }
+        assertTrue(imported);
+    }
+
+    @Test
+    public void exportAllTest() {
+        clickOn("#choosePlan");
+        String pathPlan = System.getProperty("user.dir") + "\\UITest.xlsx";
+        copyText(pathPlan);
+        clickOn("#ExportAll");
+        copyText(System.getProperty("user.dir"));
+        push(KeyCode.ENTER);
+        File folder = new File(System.getProperty("user.dir") + "\\");
+        File[] files = folder.listFiles();
+
+        int imported = 0;
+        for (File file : files) {
+            if (file.isFile()) {
+                if (file.getName().equals("ААА.xlsx")) {
+                    imported ^= 1;
+                    file.delete();
+                }
+                else if (file.getName().equals("БББ.xlsx")) {
+                    imported ^= 2;
+                    file.delete();
+                }
+            }
+            if (imported == 3) {
+                break;
+            }
+        }
+        assertEquals(3, imported);
     }
 }

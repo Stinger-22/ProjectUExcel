@@ -140,7 +140,6 @@ public class MainController {
         planHistory.setItems(historyData);
     }
 
-
     public void selectTable(ActionEvent actionEvent) throws IOException, InvalidFormatException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
@@ -166,6 +165,9 @@ public class MainController {
         }
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File file = directoryChooser.showDialog(null);
+        if (file == null) {
+            return;
+        }
         String path = file.getAbsolutePath() + "\\";
         List<Teacher> teacherTablePlacement = plan.getTeacherTablePlacement();
         Exporter exporter = getChosenExporter();
@@ -188,7 +190,6 @@ public class MainController {
         Stage stage = new Stage();
         stage.setTitle("Export one");
         stage.getIcons().add(new Image("file:planExporter.png"));
-        stage.setAlwaysOnTop(true);
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         ExportOneController controller = loader.getController();

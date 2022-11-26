@@ -9,11 +9,11 @@
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="300.0" prefWidth="356.0" VBox.vgrow="NEVER">
       <children>
-          <TextField fx:id="pathFolder" layoutX="41.0" layoutY="43.0" prefHeight="25.0" prefWidth="211.0" promptText="Path to folder" />
-          <Button fx:id="chooseFolder" layoutX="271.0" layoutY="43.0" mnemonicParsing="false" onAction="#selectFolder" text="Choose folder" />
-          <Button fx:id="buttonOk" layoutX="45.0" layoutY="290.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="140.0" text="Ok" onAction="#ok"/>
-          <Button fx:id="buttonCancel" layoutX="222.0" layoutY="290.0" mnemonicParsing="false" onAction="#cancel" prefHeight="60.0" prefWidth="140.0" text="Cancel" />
-          <TextField fx:id="code" layoutX="41.0" layoutY="108.0" promptText="Teacher's code" />
+          <TextField fx:id="pathFolder" layoutX="41.0" layoutY="43.0" prefHeight="25.0" prefWidth="198.0" promptText="Path to folder" />
+          <Button fx:id="chooseFolder" layoutX="254.0" layoutY="42.0" mnemonicParsing="false" onAction="#selectFolder" prefHeight="25.0" text="Choose folder" />
+          <Button fx:id="buttonOk" layoutX="45.0" layoutY="290.0" mnemonicParsing="false" onAction="#ok" prefHeight="25.0" prefWidth="140.0" text="Ok" />
+          <Button fx:id="buttonCancel" layoutX="222.0" layoutY="290.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0" prefWidth="140.0" text="Cancel" />
+          <TextField fx:id="code" layoutX="41.0" layoutY="108.0" prefHeight="25.0" promptText="Teacher's code" />
       </children>
     </AnchorPane>
   </children>
