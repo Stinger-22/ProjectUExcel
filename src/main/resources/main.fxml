@@ -22,17 +22,17 @@
       <children>
             <TabPane prefHeight="600.0" prefWidth="887.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                <Tab text="Plan">
+                <Tab fx:id="PlanTab" text="Plan">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="571.0" prefWidth="911.0" stylesheets="@main.css">
                            <children>
                               <TextField fx:id="pathPlan" layoutX="14.0" layoutY="14.0" prefHeight="35.0" prefWidth="680.0" promptText="Path to plan" />
                               <Button fx:id="choosePlan" layoutX="712.0" layoutY="13.0" mnemonicParsing="false" onAction="#selectTable" prefHeight="25.0" prefWidth="145.0" text="Choose plan" />
-                              <Button layoutX="712.0" layoutY="66.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="25.0" prefWidth="145.0" text="Send origin file" />
-                              <Button layoutX="712.0" layoutY="119.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="25.0" prefWidth="145.0" text="Send part to all" />
-                              <Button layoutX="719.0" layoutY="466.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="25.0" prefWidth="145.0" text="Export all" />
-                              <Button layoutX="719.0" layoutY="416.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="25.0" prefWidth="145.0" text="Export one" />
-                              <Button layoutX="712.0" layoutY="172.0" mnemonicParsing="false" onAction="#sendOne" prefHeight="25.0" prefWidth="145.0" text="Send part to one" />
+                              <Button fx:id="SendOrigin" layoutX="712.0" layoutY="66.0" mnemonicParsing="false" onAction="#sendOriginToAll" prefHeight="25.0" prefWidth="145.0" text="Send origin file" />
+                              <Button fx:id="SendPartAll" layoutX="712.0" layoutY="119.0" mnemonicParsing="false" onAction="#sendAll" prefHeight="25.0" prefWidth="145.0" text="Send part to all" />
+                              <Button fx:id="ExportAll" layoutX="719.0" layoutY="466.0" mnemonicParsing="false" onAction="#exportAll" prefHeight="25.0" prefWidth="145.0" text="Export all" />
+                              <Button fx:id="ExportOne" layoutX="719.0" layoutY="416.0" mnemonicParsing="false" onAction="#exportOne" prefHeight="25.0" prefWidth="145.0" text="Export one" />
+                              <Button fx:id="SendPartOne" layoutX="712.0" layoutY="172.0" mnemonicParsing="false" onAction="#sendOne" prefHeight="25.0" prefWidth="145.0" text="Send part to one" />
                               <RadioButton fx:id="selectYear" layoutX="719.0" layoutY="222.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" selected="true" text="year">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="partition" />
@@ -45,7 +45,7 @@
                            </children></AnchorPane>
                   </content>
                 </Tab>
-                  <Tab text="View emails">
+                  <Tab fx:id="EmailsTab" text="View emails">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -63,7 +63,7 @@
                            </children></AnchorPane>
                     </content>
                   </Tab>
-                  <Tab text="History">
+                  <Tab fx:id="HistoryTab" text="History">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -77,7 +77,7 @@
                         </AnchorPane>
                     </content>
                   </Tab>
-                  <Tab text="Help">
+                  <Tab fx:id="HelpTab" text="Help">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
