@@ -57,7 +57,7 @@
                               </TableView>
                               <TextField fx:id="filter" layoutX="221.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
                               <Button fx:id="changeEmails" layoutX="511.0" layoutY="13.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="37.0" prefWidth="181.0" text="Change email file" />
-                              <Button layoutX="638.0" layoutY="453.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
+                              <Button fx:id="buttonAddCode" layoutX="638.0" layoutY="453.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
                               <TextField fx:id="addCode" layoutX="221.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
                               <TextField fx:id="addEmail" layoutX="351.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
                            </children></AnchorPane>

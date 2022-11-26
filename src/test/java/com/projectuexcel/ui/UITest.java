@@ -1,5 +1,7 @@
 package com.projectuexcel.ui;
 
+import com.projectuexcel.ui.table.CodeMail;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
@@ -15,10 +17,13 @@ import org.testfx.matcher.control.TextInputControlMatchers;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UITest extends ApplicationTest {
 
@@ -81,14 +86,52 @@ public class UITest extends ApplicationTest {
         TableView<Map> table = lookup("#planHistory").query();
         Node node = lookup("#fileNameColumn").nth(1).query();
         doubleClickOn(node);
-        Runtime rt = Runtime.getRuntime();
-        rt.exec("taskkill /F /IM excel.exe");
+
+        Process process = Runtime.getRuntime().exec(System.getenv("windir") +"\\system32\\"+"tasklist.exe /nh");
+        String line;
+
+        boolean excelExecuted = false;
+        BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = input.readLine()) != null) {
+            if (line.contains("EXCEL.EXE")) {
+                excelExecuted = true;
+                break;
+            }
+        }
+        input.close();
+        assertTrue(excelExecuted);
+        Runtime.getRuntime().exec("taskkill /f /IM excel.exe");
+
     }
 
     @Test
     public void emailTest() {
         clickOn("#EmailsTab");
         clickOn("#changeEmails");
+        String pathEmails = System.getProperty("user.dir") + "\\UITest.txt";
+        copyText(pathEmails);
 
+        TableView<Map> table = lookup("#codeMailTableView").query();
+        Node node;
+
+        ObservableList<Map> codeMailObservableList = table.getItems();
+
+        node = lookup("#codeColumn").nth(0).query();
+        clickOn(node);
+        assertEquals(new CodeMail("ААА", "maksym.sobol.kn.2021@lpnu.ua"), codeMailObservableList.get(0));
+        clickOn(node);
+        assertEquals(new CodeMail("БББ", "maxym.sobol@gmail.com"), codeMailObservableList.get(0));
+
+        clickOn("#addCode");
+        copyText("ВВВ");
+        clickOn("#addEmail");
+        copyText("test@gmail.com");
+        clickOn("#buttonAddCode");
+
+        assertEquals(new CodeMail("ВВВ", "test@gmail.com"), codeMailObservableList.get(0));
+        node = lookup("#codeColumn").nth(1).query();
+        clickOn(node);
+        push(KeyCode.DELETE);
+        assertEquals(new CodeMail("БББ", "maxym.sobol@gmail.com"), codeMailObservableList.get(0));
     }
 }
