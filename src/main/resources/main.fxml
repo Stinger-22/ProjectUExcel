@@ -56,7 +56,7 @@
                                 </columns>
                               </TableView>
                               <TextField fx:id="filter" layoutX="221.0" layoutY="14.0" prefHeight="25.0" prefWidth="260.0" promptText="Search code" />
-                              <Button layoutX="511.0" layoutY="13.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="37.0" prefWidth="181.0" text="Change email file" />
+                              <Button fx:id="changeEmails" layoutX="511.0" layoutY="13.0" mnemonicParsing="false" onAction="#changeEmails" prefHeight="37.0" prefWidth="181.0" text="Change email file" />
                               <Button layoutX="638.0" layoutY="453.0" mnemonicParsing="false" onAction="#addCodeMail" text="Add" />
                               <TextField fx:id="addCode" layoutX="221.0" layoutY="454.0" prefHeight="25.0" prefWidth="121.0" promptText="Code" />
                               <TextField fx:id="addEmail" layoutX="351.0" layoutY="454.0" prefHeight="25.0" prefWidth="269.0" promptText="Email" />
@@ -81,17 +81,17 @@
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="30.0" prefHeight="153.0" prefWidth="750.0" text="                                                                                        Tab &quot;Plan&quot;&#10;Use button &quot;Choose plan&quot; and select required file to send.&#10;Write some text in built-in editor.&#10;You can send selected Excel file with no changes using &quot;Send origin file&quot;.&#10;If you need you can send Excel table with only his information. &#10;You have options to send only &quot;Year&quot;, &quot;1st semester&quot; or &quot;2nd semester&quot; info about.&#10;Also you can save that file internally using export buttons.">
+                              <Label fx:id="planHelp" alignment="TOP_LEFT" layoutX="69.0" layoutY="30.0" prefHeight="153.0" prefWidth="750.0" text="                                                                                        Tab &quot;Plan&quot;&#10;Use button &quot;Choose plan&quot; and select required file to send.&#10;Write some text in built-in editor.&#10;You can send selected Excel file with no changes using &quot;Send origin file&quot;.&#10;If you need you can send Excel table with only his information. &#10;You have options to send only &quot;Year&quot;, &quot;1st semester&quot; or &quot;2nd semester&quot; info about.&#10;Also you can save that file internally using export buttons.">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="183.0" prefHeight="123.0" prefWidth="750.0" text="                                                                                  Tab &quot;View emails&quot;&#10;Here you can see table which gives info to program where to send messages.&#10;You can change file with email info by clicking on button &quot;Change email file&quot;.&#10;Below the table you can write new code and email so messages will be sent there.&#10;Selecting row in table and pressing button &quot;Delete&quot; on keyboard you delete row from table.">
+                              <Label fx:id="emailHelp" alignment="TOP_LEFT" layoutX="69.0" layoutY="183.0" prefHeight="123.0" prefWidth="750.0" text="                                                                                  Tab &quot;View emails&quot;&#10;Here you can see table which gives info to program where to send messages.&#10;You can change file with email info by clicking on button &quot;Change email file&quot;.&#10;Below the table you can write new code and email so messages will be sent there.&#10;Selecting row in table and pressing button &quot;Delete&quot; on keyboard you delete row from table.">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label alignment="TOP_LEFT" layoutX="69.0" layoutY="306.0" prefHeight="55.0" prefWidth="750.0" text="                                                                                      Tab &quot;History&quot;:&#10;In this table you can see saved Excel files. Double click on row to open that file.">
+                              <Label fx:id="historyHelp" alignment="TOP_LEFT" layoutX="69.0" layoutY="306.0" prefHeight="55.0" prefWidth="750.0" text="                                                                                      Tab &quot;History&quot;:&#10;In this table you can see saved Excel files. Double click on row to open that file.">
                                  <font>
                                     <Font size="14.0" />
                                  </font>

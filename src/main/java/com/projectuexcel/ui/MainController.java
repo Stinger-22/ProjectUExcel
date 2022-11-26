@@ -4,6 +4,7 @@ import com.projectuexcel.concurrency.WaitForString;
 import com.projectuexcel.mail.MailSender;
 import com.projectuexcel.table.Plan;
 import com.projectuexcel.table.Teacher;
+import com.projectuexcel.table.exception.NoEmailFileSelectedException;
 import com.projectuexcel.table.export.*;
 import com.projectuexcel.ui.table.CodeMail;
 import com.projectuexcel.ui.table.DateName;
@@ -242,12 +243,27 @@ public class MainController {
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         SendOneController controller = loader.getController();
-        controller.setup(plan, getChosenExporter(), getCurrentEmailTableData(), subject.getText(), text.getHtmlText());
-        stage.show();
+        try {
+            controller.setup(plan, getChosenExporter(), getCurrentEmailTableData(), subject.getText(), text.getHtmlText());
+            stage.show();
+        }
+        catch (NoEmailFileSelectedException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "You haven't selected email file.", ButtonType.OK);
+            alert.showAndWait();
+        }
     }
 
     public void sendAll(ActionEvent actionEvent) {
         if (plan == null) {
+            return;
+        }
+        Map<String, List<String>> emailTable;
+        try {
+            emailTable = getCurrentEmailTableData();
+        }
+        catch (NoEmailFileSelectedException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "You haven't selected email file.", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         WaitForString waitForString = new WaitForString();
@@ -272,7 +288,7 @@ public class MainController {
                     file = new File(exportPath);
                     exporter.export(teacher, exportPath);
                     mailSender.setAttachment(file);
-                    List<String> mailList = getCurrentEmailTableData().get(teacher.getCode());
+                    List<String> mailList = emailTable.get(teacher.getCode());
                     if (mailList == null) {
                         handleNoEmail(waitForString, controller, teacher);
                     }
@@ -303,7 +319,6 @@ public class MainController {
         Stage stage = new Stage();
         stage.setTitle("Sending process");
         stage.getIcons().add(new Image("file:planExporter.png"));
-        stage.setAlwaysOnTop(true);
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         SendAllController controller = loader.getController();
@@ -313,6 +328,15 @@ public class MainController {
 
     public void sendOriginToAll(ActionEvent actionEvent) {
         if (plan == null) {
+            return;
+        }
+        Map<String, List<String>> emailTable;
+        try {
+            emailTable = getCurrentEmailTableData();
+        }
+        catch (NoEmailFileSelectedException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "You haven't selected email file.", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         WaitForString waitForString = new WaitForString();
@@ -326,12 +350,13 @@ public class MainController {
             alert.showAndWait();
             return;
         }
+        System.out.println("lalala");
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 mailSender.setAttachment(plan.getFile());
                 for (Teacher teacher : teacherTablePlacement) {
-                    List<String> mailList = getCurrentEmailTableData().get(teacher.getCode());
+                    List<String> mailList = emailTable.get(teacher.getCode());
                     if (mailList == null) {
                         handleNoEmail(waitForString, controller, teacher);
                     }
@@ -422,8 +447,11 @@ public class MainController {
         setupFilter();
     }
 
-    public Map<String, List<String>> getCurrentEmailTableData() {
+    public Map<String, List<String>> getCurrentEmailTableData() throws NoEmailFileSelectedException {
         Map<String, List<String>> data = new HashMap<>();
+        if (tableData == null) {
+            throw new NoEmailFileSelectedException();
+        }
         for (CodeMail codeMail : tableData) {
             if (data.containsKey(codeMail.getCode())) {
                 data.get(codeMail.getCode()).add(codeMail.getEmail());
@@ -442,13 +470,21 @@ public class MainController {
             return;
         }
         FileWriter fileWriter = new FileWriter(emailsFile, false);
-        Map<String, List<String>> emailData = getCurrentEmailTableData();
-        List<String> keys = new ArrayList<>(emailData.keySet());
+        Map<String, List<String>> emailTable;
+        try {
+            emailTable = getCurrentEmailTableData();
+        }
+        catch (NoEmailFileSelectedException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "You haven't selected email file.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        List<String> keys = new ArrayList<>(emailTable.keySet());
         StringBuilder stringBuilder = new StringBuilder();
         for (String key : keys) {
             stringBuilder.setLength(0);
             stringBuilder.append(key).append("=");
-            List<String> emails = emailData.get(key);
+            List<String> emails = emailTable.get(key);
             for (int i = 0; i < emails.size() - 1; i++) {
                 stringBuilder.append(emails.get(i)).append(",");
             }

@@ -1,6 +1,9 @@
 package com.projectuexcel.ui;
 
+import javafx.scene.Node;
+import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.web.HTMLEditor;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.api.FxAssert;
@@ -12,6 +15,10 @@ import org.testfx.matcher.control.TextInputControlMatchers;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class UITest extends ApplicationTest {
 
@@ -55,7 +62,8 @@ public class UITest extends ApplicationTest {
         clickOn("#text");
         String text = "TextTest";
         copyText(text);
-        // Can't verify. TestFX can't retrieve text from HTMLEditor
+        HTMLEditor editor = lookup("#text").query();
+        assertEquals("<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p><span style=\"font-family: &quot;&quot;;\">TextTest</span></p><p><span style=\"font-family: &quot;&quot;;\"><br></span></p></body></html>", editor.getHtmlText());
     }
 
     private void copyText(String toCopy) {
@@ -65,5 +73,22 @@ public class UITest extends ApplicationTest {
 
         press(KeyCode.CONTROL).press(KeyCode.V).release(KeyCode.V).release(KeyCode.CONTROL);
         push(KeyCode.ENTER);
+    }
+
+    @Test
+    public void historyOpenTest() throws IOException {
+        clickOn("#HistoryTab");
+        TableView<Map> table = lookup("#planHistory").query();
+        Node node = lookup("#fileNameColumn").nth(1).query();
+        doubleClickOn(node);
+        Runtime rt = Runtime.getRuntime();
+        rt.exec("taskkill /F /IM excel.exe");
+    }
+
+    @Test
+    public void emailTest() {
+        clickOn("#EmailsTab");
+        clickOn("#changeEmails");
+
     }
 }
