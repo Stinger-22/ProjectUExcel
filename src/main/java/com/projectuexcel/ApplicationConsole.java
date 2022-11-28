@@ -256,7 +256,7 @@ public class ApplicationConsole {
         return mail;
     }
 
-    private void sendOriginToAll() throws MessagingException, IOException {
+    private void sendOriginToAll() throws IOException {
         List<Teacher> teachers = plan.getTeacherTablePlacement();
         mailSender.setAttachment(plan.getFile());
         String[] mails = new String[teachers.size()];

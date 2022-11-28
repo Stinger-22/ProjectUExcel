@@ -37,43 +37,33 @@ public class SendAllController {
     }
 
     public void messageSent(String code, String email) {
-
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Label label = new Label();
-                label.setText("Message was sent to " + code + " with email " + email);
-                label.setWrapText(true);
-                labelBox.getChildren().add(label);
-                updateProgress();
-            }
+        Platform.runLater(() -> {
+            Label label = new Label();
+            label.setText("Message was sent to " + code + " with email " + email);
+            label.setWrapText(true);
+            labelBox.getChildren().add(label);
+            updateProgress();
         });
     }
 
     public void messageSent(String code, String[] emails) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Label label = new Label();
-                label.setText("Message was sent to " + code + " with email " + Arrays.toString(emails));
-                label.setWrapText(true);
-                labelBox.getChildren().add(label);
-                updateProgress();
-            }
+        Platform.runLater(() -> {
+            Label label = new Label();
+            label.setText("Message was sent to " + code + " with email " + Arrays.toString(emails));
+            label.setWrapText(true);
+            labelBox.getChildren().add(label);
+            updateProgress();
         });
     }
 
     public void messageNotSent(String code) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Label label = new Label();
-                label.setText("Message was not sent to " + code);
-                label.setWrapText(true);
-                label.setTextFill(Color.color(1, 0, 0));
-                labelBox.getChildren().add(label);
-                updateProgress();
-            }
+        Platform.runLater(() -> {
+            Label label = new Label();
+            label.setText("Message was not sent to " + code);
+            label.setWrapText(true);
+            label.setTextFill(Color.color(1, 0, 0));
+            labelBox.getChildren().add(label);
+            updateProgress();
         });
     }
 

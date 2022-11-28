@@ -1,5 +1,8 @@
 package com.projectuexcel.mail;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.File;
@@ -75,31 +78,49 @@ public class MailSender {
         sendMessage(message, subject, text);
     }
 
-    public void sendMessageAttachment(String[] receivers, String subject, String text) throws MessagingException, IOException {
+    public void sendMessageAttachment(String[] receivers, String subject, String text) throws IOException {
         if (attachment == null) {
             throw new IllegalStateException("No attachment file is set. Use method setAttachment");
         }
         Message message = new MimeMessage(session);
-        message.setFrom(internetAddress);
-        for (String receiver : receivers) {
-            message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
+        try {
+            message.setFrom(internetAddress);
+            for (String receiver : receivers) {
+                try {
+                    message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
+                }
+                catch (AddressException exception) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wrong receiver email.\nError\n" + exception.getMessage(), ButtonType.OK);
+                    alert.showAndWait();
+                }
+            }
+            sendMessage(message, subject, text);
         }
-        sendMessage(message, subject, text);
+        catch (MessagingException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Check internet connection\n" + exception.getMessage(), ButtonType.OK);
+            alert.showAndWait();
+        }
     }
 
-    private void sendMessage(Message message, String subject, String text) throws MessagingException, IOException {
-        message.setSubject(subject);
-        MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-        attachmentBodyPart.attachFile(attachment);
+    private void sendMessage(Message message, String subject, String text) throws IOException {
+        try {
+            message.setSubject(subject);
+            MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+            attachmentBodyPart.attachFile(attachment);
 
-        MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(text, "text/html; charset=utf-8");
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+            mimeBodyPart.setContent(text, "text/html; charset=utf-8");
 
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(mimeBodyPart);
-        multipart.addBodyPart(attachmentBodyPart);
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(mimeBodyPart);
+            multipart.addBodyPart(attachmentBodyPart);
 
-        message.setContent(multipart);
-        Transport.send(message);
+            message.setContent(multipart);
+            Transport.send(message);
+        }
+        catch (MessagingException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Check internet connection\n" + exception.getMessage(), ButtonType.OK);
+            alert.showAndWait();
+        }
     }
 }

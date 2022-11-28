@@ -22,12 +22,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class UITest extends ApplicationTest {
 
@@ -87,7 +84,6 @@ public class UITest extends ApplicationTest {
     @Test
     public void historyOpenTest() throws IOException {
         clickOn("#HistoryTab");
-        TableView<Map> table = lookup("#planHistory").query();
         Node node = lookup("#fileNameColumn").nth(1).query();
         doubleClickOn(node);
 
@@ -158,7 +154,7 @@ public class UITest extends ApplicationTest {
         for (File file : files) {
             if (file.isFile() && file.getName().equals("ААА.xlsx")) {
                 imported = true;
-                file.delete();
+                assertTrue(file.delete());
                 break;
             }
         }
@@ -181,11 +177,11 @@ public class UITest extends ApplicationTest {
             if (file.isFile()) {
                 if (file.getName().equals("ААА.xlsx")) {
                     imported ^= 1;
-                    file.delete();
+                    assertTrue(file.delete());
                 }
                 else if (file.getName().equals("БББ.xlsx")) {
                     imported ^= 2;
-                    file.delete();
+                    assertTrue(file.delete());
                 }
             }
             if (imported == 3) {

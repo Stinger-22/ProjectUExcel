@@ -13,8 +13,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.DirectoryChooser;
@@ -95,15 +92,12 @@ public class MainController {
         this.codeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         this.emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        this.codeMailTableView.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                CodeMail selected = codeMailTableView.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    if (keyEvent.getCode().equals(KeyCode.DELETE)) {
-                        tableData.remove(selected);
-                        setupFilter();
-                    }
+        this.codeMailTableView.setOnKeyPressed(keyEvent -> {
+            CodeMail selected = codeMailTableView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+                    tableData.remove(selected);
+                    setupFilter();
                 }
             }
         });
@@ -140,7 +134,7 @@ public class MainController {
         planHistory.setItems(historyData);
     }
 
-    public void selectTable(ActionEvent actionEvent) throws IOException, InvalidFormatException {
+    public void selectTable() throws IOException, InvalidFormatException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Excel files", "*.xls", "*.xlsx")
@@ -159,7 +153,7 @@ public class MainController {
         }
     }
 
-    public void exportAll(ActionEvent actionEvent) {
+    public void exportAll() {
         if (plan == null) {
             return;
         }
@@ -176,7 +170,7 @@ public class MainController {
         }
     }
 
-    public void exportOne(ActionEvent actionEvent) throws IOException {
+    public void exportOne() throws IOException {
         if (plan == null) {
             return;
         }
@@ -227,7 +221,7 @@ public class MainController {
         throw new IllegalStateException();
     }
 
-    public void sendOne(ActionEvent actionEvent) throws IOException {
+    public void sendOne() throws IOException {
         if (plan == null) {
             return;
         }
@@ -254,7 +248,7 @@ public class MainController {
         }
     }
 
-    public void sendAll(ActionEvent actionEvent) {
+    public void sendAll() {
         if (plan == null) {
             return;
         }
@@ -279,33 +273,34 @@ public class MainController {
             alert.showAndWait();
             return;
         }
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String exportPath = "Plan.xlsx";
-                File file;
-                Exporter exporter = getChosenExporter();
-                for (Teacher teacher : teacherTablePlacement) {
-                    file = new File(exportPath);
-                    exporter.export(teacher, exportPath);
-                    mailSender.setAttachment(file);
-                    List<String> mailList = emailTable.get(teacher.getCode());
-                    if (mailList == null) {
-                        handleNoEmail(waitForString, controller, teacher);
+        Thread thread = new Thread(() -> {
+            String exportPath = "Plan.xlsx";
+            File file;
+            Exporter exporter = getChosenExporter();
+            for (Teacher teacher : teacherTablePlacement) {
+                file = new File(exportPath);
+                exporter.export(teacher, exportPath);
+                mailSender.setAttachment(file);
+                List<String> mailList = emailTable.get(teacher.getCode());
+                if (mailList == null) {
+                    handleNoEmail(waitForString, controller, teacher);
+                }
+                else {
+                    String[] mailArray = new String[mailList.size()];
+                    try {
+                        mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
+                        controller.messageSent(teacher.getCode(), mailArray);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    else {
-                        String[] mailArray = new String[mailList.size()];
-                        try {
-                            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
-                            controller.messageSent(teacher.getCode(), mailArray);
-                        } catch (MessagingException | IOException e) {
-                            e.printStackTrace();
-                        }
-                        file.delete();
+                    boolean isDeleted = file.delete();
+                    if (!isDeleted) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Temp file was not deleted in application directory.", ButtonType.OK);
+                        alert.showAndWait();
                     }
                 }
-                controller.finish();
             }
+            controller.finish();
         });
         thread.start();
     }
@@ -327,7 +322,7 @@ public class MainController {
         return controller;
     }
 
-    public void sendOriginToAll(ActionEvent actionEvent) {
+    public void sendOriginToAll() {
         if (plan == null) {
             return;
         }
@@ -351,41 +346,34 @@ public class MainController {
             alert.showAndWait();
             return;
         }
-        System.out.println("lalala");
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mailSender.setAttachment(plan.getFile());
-                for (Teacher teacher : teacherTablePlacement) {
-                    List<String> mailList = emailTable.get(teacher.getCode());
-                    if (mailList == null) {
-                        handleNoEmail(waitForString, controller, teacher);
-                    }
-                    else {
-                        String[] mailArray = new String[mailList.size()];
-                        try {
-                            mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
-                            controller.messageSent(teacher.getCode(), mailArray);
-                        } catch (MessagingException | IOException e) {
-                            e.printStackTrace();
-                        }
+        Thread thread = new Thread(() -> {
+            mailSender.setAttachment(plan.getFile());
+            for (Teacher teacher : teacherTablePlacement) {
+                List<String> mailList = emailTable.get(teacher.getCode());
+                if (mailList == null) {
+                    handleNoEmail(waitForString, controller, teacher);
+                }
+                else {
+                    String[] mailArray = new String[mailList.size()];
+                    try {
+                        mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject.getText(), text.getHtmlText());
+                        controller.messageSent(teacher.getCode(), mailArray);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-                controller.finish();
             }
+            controller.finish();
         });
         thread.start();
     }
 
     private void handleNoEmail(WaitForString waitForString, SendAllController controller, Teacher teacher) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    emailNotFound(waitForString, teacher.getCode());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Platform.runLater(() -> {
+            try {
+                emailNotFound(waitForString, teacher.getCode());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         waitForString.doWait();
@@ -443,7 +431,7 @@ public class MainController {
         codeMailTableView.setItems(sortedList);
     }
 
-    public void addCodeMail(ActionEvent actionEvent) {
+    public void addCodeMail() {
         tableData.add(new CodeMail(addCode.getText(), addEmail.getText()));
         setupFilter();
     }

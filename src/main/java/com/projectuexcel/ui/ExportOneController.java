@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
@@ -20,12 +19,6 @@ public class ExportOneController {
     @FXML
     private TextField pathFolder;
     @FXML
-    private Button chooseFolder;
-    @FXML
-    private Button buttonOk;
-    @FXML
-    private Button buttonCancel;
-    @FXML
     private TextField code;
 
     private Plan plan;
@@ -36,7 +29,7 @@ public class ExportOneController {
         this.exporter = exporter;
     }
 
-    public void selectFolder(ActionEvent actionEvent) {
+    public void selectFolder() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         String path = directoryChooser.showDialog(null).getAbsolutePath() + "\\";
         pathFolder.setText(path);

@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
@@ -21,10 +20,6 @@ import java.util.Map;
 import static com.projectuexcel.table.Teacher.searchTeacherByCode;
 
 public class SendOneController {
-    @FXML
-    private Button buttonOk;
-    @FXML
-    private Button buttonCancel;
     @FXML
     private TextField code;
 
@@ -70,8 +65,11 @@ public class SendOneController {
         mailSender.setAttachment(file);
         String[] mailArray = new String[mailList.size()];
         mailSender.sendMessageAttachment(mailList.toArray(mailArray), subject, text);
-        file.delete();
-
+        boolean isDeleted = file.delete();
+        if (!isDeleted) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Temp file was not deleted in application directory.", ButtonType.OK);
+            alert.showAndWait();
+        }
         ((Node) (actionEvent.getSource())).getScene().getWindow().hide();
     }
 }
