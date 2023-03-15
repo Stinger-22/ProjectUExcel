@@ -118,6 +118,7 @@ public class Plan {
 
     private List<Teacher> findTeacherTablePlacement() {
         //TODO: make function to find semester column
+        //TODO: make object Finder and replace this mess
         int semesterColumn = 2;
         Cell cell;
         Row row;
@@ -128,8 +129,10 @@ public class Plan {
         do {
             row = sheet.getRow(i);
             cell = row.getCell(0);
+            if (cell == null) {
+                break;
+            }
             teacher = new Teacher(cell.getStringCellValue());
-
             if (row.getCell(semesterColumn).getNumericCellValue() == 1) {
                 teacher.setRowFirstSemesterStart(i);
                 while (cell != null && !cell.getStringCellValue().equals("")) {
@@ -142,16 +145,21 @@ public class Plan {
 
             row = sheet.getRow(i);
             cell = row.getCell(0);
-            if (row.getCell(semesterColumn).getNumericCellValue() == 2) {
-                teacher.setRowSecondSemesterStart(i);
-                while (cell != null && !cell.getStringCellValue().equals("")) {
-                    i++;
-                    cell = sheet.getRow(i).getCell(0);
+            if (cell.getStringCellValue().equals(teacher.getCode())) {
+                if (row.getCell(semesterColumn).getNumericCellValue() == 2) {
+                    teacher.setRowSecondSemesterStart(i);
+                    while (cell != null && !cell.getStringCellValue().equals("")) {
+                        i++;
+                        cell = sheet.getRow(i).getCell(0);
+                    }
+                    teacher.setRowSecondSemesterEnd(i - 1);
+                    i += 2;
                 }
-                teacher.setRowSecondSemesterEnd(i - 1);
-                i += 2;
             }
-
+            else {
+                i++;
+                cell = sheet.getRow(i).getCell(0);
+            }
             teacherPlacement.add(teacher);
         } while (i < rows);
         return teacherPlacement;

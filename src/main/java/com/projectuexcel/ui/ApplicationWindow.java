@@ -44,8 +44,8 @@ public class ApplicationWindow extends Application {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Save file in history?.", ButtonType.YES, ButtonType.NO);
             Optional<ButtonType> answer = alert.showAndWait();
             if (answer.isPresent()  && answer.get() == ButtonType.YES) {
-                FileWriter fileWriter = new FileWriter("history\\history.txt\n", true);
-                fileWriter.write(plan.getDate() + "=" + plan.getFile().getName());
+                FileWriter fileWriter = new FileWriter("history\\history.txt", true);
+                fileWriter.write(plan.getDate() + "=" + plan.getFile().getName() + "\n");
                 fileWriter.close();
                 Files.copy(plan.getFile().toPath(), (new File("history/" + plan.getFile().getName())).toPath(), StandardCopyOption.REPLACE_EXISTING);
             }

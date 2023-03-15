@@ -101,7 +101,6 @@ public class UITest extends ApplicationTest {
         input.close();
         assertTrue(excelExecuted);
         Runtime.getRuntime().exec("taskkill /f /IM excel.exe");
-
     }
 
     @Test

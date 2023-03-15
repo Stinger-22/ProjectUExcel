@@ -134,6 +134,7 @@ public class MainController {
         planHistory.setItems(historyData);
     }
 
+    // IN FXML
     public void selectTable() throws IOException, InvalidFormatException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
@@ -153,6 +154,7 @@ public class MainController {
         }
     }
 
+    // IN FXML
     public void exportAll() {
         if (plan == null) {
             return;
@@ -170,6 +172,7 @@ public class MainController {
         }
     }
 
+    // IN FXML
     public void exportOne() throws IOException {
         if (plan == null) {
             return;
@@ -221,6 +224,7 @@ public class MainController {
         throw new IllegalStateException();
     }
 
+    // IN FXML
     public void sendOne() throws IOException {
         if (plan == null) {
             return;
@@ -248,6 +252,7 @@ public class MainController {
         }
     }
 
+    // IN FXML
     public void sendAll() {
         if (plan == null) {
             return;
@@ -273,13 +278,22 @@ public class MainController {
             alert.showAndWait();
             return;
         }
+        //TODO: remove duplicated code
         Thread thread = new Thread(() -> {
             String exportPath = "Plan.xlsx";
             File file;
             Exporter exporter = getChosenExporter();
             for (Teacher teacher : teacherTablePlacement) {
                 file = new File(exportPath);
-                exporter.export(teacher, exportPath);
+                boolean isExported = exporter.export(teacher, exportPath);
+                if (!isExported) {
+                    boolean isDeleted = file.delete();
+                    if (!isDeleted) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Temp file was not deleted in application directory.", ButtonType.OK);
+                        alert.showAndWait();
+                    }
+                    continue;
+                }
                 mailSender.setAttachment(file);
                 List<String> mailList = emailTable.get(teacher.getCode());
                 if (mailList == null) {
@@ -322,6 +336,7 @@ public class MainController {
         return controller;
     }
 
+    // IN FXML
     public void sendOriginToAll() {
         if (plan == null) {
             return;
@@ -393,7 +408,9 @@ public class MainController {
 
     private void loadCodeMailTableView() {
         tableData = FXCollections.observableArrayList();
+        System.out.println(mailsMap);
         List<String> keys = new ArrayList<>(mailsMap.keySet());
+        System.out.println(keys);
         for (String key : keys) {
             List<String> emails = mailsMap.get(key);
             for (String email : emails) {
@@ -402,6 +419,7 @@ public class MainController {
         }
     }
 
+    // IN FXML
     public void changeEmails() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
@@ -412,8 +430,10 @@ public class MainController {
             saveEmailTableChanges();
             emailsFile = file;
             mailsMap = importEmails(emailsFile.getAbsolutePath());
+            System.out.println("MAILSMAP: " + mailsMap);
             loadCodeMailTableView();
             setupFilter();
+            System.out.println("LALALALA");
         }
     }
 
@@ -431,6 +451,7 @@ public class MainController {
         codeMailTableView.setItems(sortedList);
     }
 
+    // IN FXML
     public void addCodeMail() {
         tableData.add(new CodeMail(addCode.getText(), addEmail.getText()));
         setupFilter();

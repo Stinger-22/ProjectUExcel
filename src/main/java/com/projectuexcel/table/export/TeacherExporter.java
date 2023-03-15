@@ -18,7 +18,7 @@ public abstract class TeacherExporter implements Exporter {
         this.plan = plan;
     }
 
-    public void export(Teacher teacher, String path) {
+    public boolean export(Teacher teacher, String path) {
         Workbook exportWorkbook;
         if (plan.getWorkbook() instanceof XSSFWorkbook) {
             exportWorkbook = new XSSFWorkbook();
@@ -28,6 +28,11 @@ public abstract class TeacherExporter implements Exporter {
         }
         else {
             throw new IllegalStateException();
+        }
+
+        //TODO MAKE THIS BETTER
+        if (findFirstRow(teacher) == -1) {
+            return false;
         }
 
         Sheet originSheet = plan.getSheet();
@@ -50,6 +55,7 @@ public abstract class TeacherExporter implements Exporter {
             rowDestinationIndex++;
         }
         write(exportWorkbook, path);
+        return true;
     }
 
     public abstract int findFirstRow(Teacher teacher);

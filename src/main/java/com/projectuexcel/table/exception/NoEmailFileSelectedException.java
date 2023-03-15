@@ -16,7 +16,7 @@ public class NoEmailFileSelectedException extends Exception {
     }
 
     @Override
-        public String getMessage() {
+    public String getMessage() {
             return DESCRIPTION;
-        }
     }
+}
